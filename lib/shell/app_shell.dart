@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-
 class AppShell extends StatefulWidget {
   final Widget child;
   const AppShell({required this.child, super.key});
@@ -29,23 +28,61 @@ class _AppShellState extends State<AppShell> {
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
-              decoration: BoxDecoration(color: Color(0xFF16548D)),
-              child: Text('Menú', style: TextStyle(color: Colors.white, fontSize: 24)),
+              padding: EdgeInsets.zero,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Imagen de fondo
+                  Image(image: AssetImage('assets/bg.jpg'), fit: BoxFit.cover),
+
+                  // Overlay oscuro
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.black54, // Color negro translúcido
+                    ),
+                  ),
+
+                  // Texto encima
+                  Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Text(
+                        'Menú',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             ListTile(
               leading: const Icon(Icons.home),
               title: const Text('Inicio'),
-              onTap: () => _onItemTapped(0),
+              onTap: () {
+                Navigator.pop(context);
+                _onItemTapped(0);
+              },
             ),
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Pacientes'),
-              onTap: () => _onItemTapped(1),
+              onTap: () {
+                Navigator.pop(context);
+                _onItemTapped(1);
+              },
             ),
             ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Ajustes'),
-              onTap: () => _onItemTapped(2),
+              onTap: () {
+                Navigator.pop(context);
+                _onItemTapped(2);
+              },
             ),
             const Divider(),
             ListTile(
