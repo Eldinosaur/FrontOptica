@@ -1,16 +1,13 @@
+// lib/main.dart
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'views/login_screen.dart';
-import 'views/home_screen.dart';
 import 'services/auth_service.dart';
+import 'router/app_router.dart'; // Importamos el archivo de rutas
 
 void main() {
   runApp(
     MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => AuthService()),
-      ],
+      providers: [ChangeNotifierProvider(create: (context) => AuthService())],
       child: const MyApp(),
     ),
   );
@@ -28,15 +25,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      routerConfig: _router,
+      routerConfig: appRouter, // Usamos la instancia importada
     );
   }
 }
-
-// Configuración de Rutas con GoRouter
-final GoRouter _router = GoRouter(
-  routes: [
-    GoRoute(path: '/', builder: (context, state) => LoginScreen()),
-    GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
-  ],
-);
