@@ -5,8 +5,11 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('Página de Inicio'));
+    return Center(
+      child: Image.asset(
+        'assets/bg.jpg',
+        fit: BoxFit.none, // No escala la imagen
+      ),
+    );
   }
 }
-
-
