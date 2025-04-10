@@ -16,7 +16,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      // Simulacion de cambio de clave
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -24,18 +23,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           content: const Text('La contraseña se cambió correctamente.'),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cierra solo el diálogo
-              },
+              onPressed: () => context.go('/ajustes'),
               child: const Text('Aceptar'),
             ),
           ],
         ),
-      ).then((_) {
-        if (context.mounted) {
-          context.go('/ajustes'); // Redirige a la página de ajustes
-        }
-      });
+      );
     }
   }
 
@@ -51,50 +44,96 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Cambiar Contraseña')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _currentPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: 'Contraseña Actual'),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Ingrese su contraseña actual' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _newPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: 'Nueva Contraseña'),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Ingrese una nueva contraseña' : null,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _confirmPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: 'Confirmar Contraseña'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Confirme su nueva contraseña';
-                  }
-                  if (value != _newPasswordController.text) {
-                    return 'Las contraseñas no coinciden';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _submit,
-                child: const Text('Guardar'),
-              ),
-            ],
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  'Actualiza tu contraseña',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 20),
+
+                // Formulario sin contenedor visual, directo en el cuerpo
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      _buildInputField(
+                        icon: Icons.lock_outline,
+                        hint: 'Contraseña Actual',
+                        controller: _currentPasswordController,
+                      ),
+                      const SizedBox(height: 15),
+                      _buildInputField(
+                        icon: Icons.lock,
+                        hint: 'Nueva Contraseña',
+                        controller: _newPasswordController,
+                      ),
+                      const SizedBox(height: 15),
+                      _buildInputField(
+                        icon: Icons.lock_reset,
+                        hint: 'Confirmar Contraseña',
+                        controller: _confirmPasswordController,
+                        validator: (value) {
+                          if (value != _newPasswordController.text) {
+                            return 'Las contraseñas no coinciden';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _submit,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF16548D),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                          child: const Text('Guardar', style: TextStyle(color: Colors.white, fontSize: 16)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildInputField({
+    required IconData icon,
+    required String hint,
+    required TextEditingController controller,
+    FormFieldValidator<String>? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: true,
+      validator: validator ??
+          (value) => (value == null || value.isEmpty) ? 'Este campo es obligatorio' : null,
+      decoration: InputDecoration(
+        hintText: hint,
+        prefixIcon: Icon(icon, color: const Color(0xFF16548D)),
+        filled: true,
+        fillColor: Colors.grey[100],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(5),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 14),
       ),
     );
   }
