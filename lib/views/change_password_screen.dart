@@ -43,7 +43,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Cambiar Contraseña')),
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -53,56 +52,64 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Text(
-                  'Actualiza tu contraseña',
+                  'Cambiar Contraseña',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),
 
-                // Formulario sin contenedor visual, directo en el cuerpo
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      _buildInputField(
-                        icon: Icons.lock_outline,
-                        hint: 'Contraseña Actual',
-                        controller: _currentPasswordController,
-                      ),
-                      const SizedBox(height: 15),
-                      _buildInputField(
-                        icon: Icons.lock,
-                        hint: 'Nueva Contraseña',
-                        controller: _newPasswordController,
-                      ),
-                      const SizedBox(height: 15),
-                      _buildInputField(
-                        icon: Icons.lock_reset,
-                        hint: 'Confirmar Contraseña',
-                        controller: _confirmPasswordController,
-                        validator: (value) {
-                          if (value != _newPasswordController.text) {
-                            return 'Las contraseñas no coinciden';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _submit,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF16548D),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
+                // Usamos un Align para centrar el formulario sin un contenedor visual
+                Align(
+                  alignment: Alignment.center,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: 400, // Limita el ancho del formulario
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildInputField(
+                            icon: Icons.lock_outline,
+                            hint: 'Contraseña Actual',
+                            controller: _currentPasswordController,
+                          ),
+                          const SizedBox(height: 15),
+                          _buildInputField(
+                            icon: Icons.lock,
+                            hint: 'Nueva Contraseña',
+                            controller: _newPasswordController,
+                          ),
+                          const SizedBox(height: 15),
+                          _buildInputField(
+                            icon: Icons.lock_reset,
+                            hint: 'Confirmar Contraseña',
+                            controller: _confirmPasswordController,
+                            validator: (value) {
+                              if (value != _newPasswordController.text) {
+                                return 'Las contraseñas no coinciden';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: _submit,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF16548D),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                              child: const Text('Guardar', style: TextStyle(color: Colors.white, fontSize: 16)),
                             ),
                           ),
-                          child: const Text('Guardar', style: TextStyle(color: Colors.white, fontSize: 16)),
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ],
@@ -122,8 +129,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     return TextFormField(
       controller: controller,
       obscureText: true,
-      validator: validator ??
-          (value) => (value == null || value.isEmpty) ? 'Este campo es obligatorio' : null,
+      validator: validator ?? (value) => (value == null || value.isEmpty) ? 'Este campo es obligatorio' : null,
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: Icon(icon, color: const Color(0xFF16548D)),
