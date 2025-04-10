@@ -16,14 +16,18 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
+      // Muestra el modal de éxito
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Éxito'),
           content: const Text('La contraseña se cambió correctamente.'),
           actions: [
             TextButton(
-              onPressed: () => context.go('/ajustes'),
+              onPressed: () {
+                // Cerrar el modal y navegar a la página de ajustes
+                Navigator.pop(context); // Cierra el AlertDialog
+                context.go('/ajustes'); // Navega a la página de ajustes
+              },
               child: const Text('Aceptar'),
             ),
           ],
