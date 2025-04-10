@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart'; // Importa el paquete de Lottie
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -16,15 +17,26 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      // Muestra el modal de éxito
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          content: const Text('La contraseña se cambió correctamente.'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Usar Lottie para mostrar una animación de check
+              Lottie.asset(
+                'check.json', // Ruta del archivo .json
+                width: 100, // Tamaño del ícono
+                height: 100,
+                fit: BoxFit.cover,
+              ),
+              const SizedBox(height: 10),
+              const Text('La contraseña se cambió correctamente.'),
+            ],
+          ),
           actions: [
             TextButton(
               onPressed: () {
-                // Cerrar el modal y navegar a la página de ajustes
                 Navigator.pop(context); // Cierra el AlertDialog
                 context.go('/ajustes'); // Navega a la página de ajustes
               },
@@ -60,8 +72,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),
-
-                // Usamos un Align para centrar el formulario sin un contenedor visual
                 Align(
                   alignment: Alignment.center,
                   child: ConstrainedBox(

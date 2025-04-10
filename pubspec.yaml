@@ -37,6 +37,7 @@ dependencies:
   go_router: ^14.8.1
   provider: ^6.1.2
   flutter_launcher_icons: ^0.14.3
+  lottie: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -60,9 +61,7 @@ flutter_launcher_icons:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - "assets/bg.jpg"
-    - "assets/logo.PNG"
-    - "assets/user.png"
+    - "assets/"
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

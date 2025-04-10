@@ -18,7 +18,7 @@ class SettingsPage extends StatelessWidget {
               children: [
                 const CircleAvatar(
                   radius: 50,
-                  backgroundImage: AssetImage('assets/user.png'),
+                  backgroundImage: AssetImage('user.png'),
                 ),
                 const SizedBox(height: 16),
                 const Text(
