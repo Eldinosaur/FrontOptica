@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart'; // Importa el paquete de Lottie
 
-class ChangePasswordPage extends StatefulWidget {
-  const ChangePasswordPage({super.key});
+class ChangePasswordScreen extends StatefulWidget {
+  const ChangePasswordScreen({super.key});
 
   @override
-  State<ChangePasswordPage> createState() => _ChangePasswordPageState();
+  State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
 }
 
-class _ChangePasswordPageState extends State<ChangePasswordPage> {
+class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _currentPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
@@ -25,7 +25,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             children: [
               // Usar Lottie para mostrar una animación de check
               Lottie.asset(
-                'check.json', // Ruta del archivo .json
+                'assets/check.json', // Ruta del archivo .json
                 width: 100, // Tamaño del ícono
                 height: 100,
                 fit: BoxFit.cover,

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class SettingsPage extends StatelessWidget {
               children: [
                 const CircleAvatar(
                   radius: 50,
-                  backgroundImage: AssetImage('user.png'),
+                  backgroundImage: AssetImage('assets/user.png'),
                 ),
                 const SizedBox(height: 16),
                 const Text(
