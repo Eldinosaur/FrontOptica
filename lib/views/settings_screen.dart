@@ -43,7 +43,7 @@ class SettingsScreen extends StatelessWidget {
                   context: context,
                   icon: Icons.logout,
                   title: 'Cerrar sesión',
-                  onTap: () => context.go('/'), // Cambia según tu lógica de logout
+                  onTap: () => context.go('/login'), // Cambia según tu lógica de logout
                 ),
               ],
             ),

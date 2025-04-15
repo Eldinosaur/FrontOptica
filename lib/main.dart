@@ -3,10 +3,20 @@ import 'package:provider/provider.dart';
 import 'services/auth_service.dart';
 import 'router/app_router.dart'; // Archivo de rutas
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Crea una instancia del servicio de autenticación
+  final authService = AuthService();
+
+  // Verifica si hay un token guardado y si es válido
+  await authService.checkAuth();
+
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (context) => AuthService())],
+      providers: [
+        ChangeNotifierProvider(create: (context) => authService),
+      ],
       child: const MyApp(),
     ),
   );
@@ -19,7 +29,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Gestión de Fichas Clínicas',
+      title: 'EyeMedix',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,

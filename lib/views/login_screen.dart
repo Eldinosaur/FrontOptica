@@ -17,6 +17,13 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _errorMessage;
 
   void _login() async {
+    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+      setState(() {
+        _errorMessage = "Por favor ingrese usuario y contraseña";
+      });
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -82,6 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       _buildInputField(Icons.lock, "Contraseña", _passwordController, true),
                       const SizedBox(height: 20),
 
+                      // Error message
                       if (_errorMessage != null)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 10),

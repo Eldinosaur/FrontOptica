@@ -88,7 +88,7 @@ class _AppShellState extends State<AppShell> {
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Cerrar sesión'),
-              onTap: () => context.go('/'),
+              onTap: () => context.go('/login'),
             ),
           ],
         ),
