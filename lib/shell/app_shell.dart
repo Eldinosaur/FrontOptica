@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../services/auth_service.dart';
+import '../utils/dialogs.dart';
 
 class AppShell extends StatefulWidget {
   final Widget child;
@@ -88,7 +91,16 @@ class _AppShellState extends State<AppShell> {
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Cerrar sesión'),
-              onTap: () => context.go('/login'),
+              onTap: () async {
+                final confirm = await showLogoutConfirmationDialog(context);
+                if (confirm) {
+                  await Provider.of<AuthService>(
+                    context,
+                    listen: false,
+                  ).logout();
+                  if (context.mounted) context.go('/login');
+                }
+              },
             ),
           ],
         ),

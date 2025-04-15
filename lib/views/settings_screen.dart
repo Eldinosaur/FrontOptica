@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../services/auth_service.dart';
+import '../utils/dialogs.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -11,7 +14,9 @@ class SettingsScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 400), // Límite de ancho máximo
+            constraints: BoxConstraints(
+              maxWidth: 400,
+            ), // Límite de ancho máximo
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -24,7 +29,7 @@ class SettingsScreen extends StatelessWidget {
                 const Text(
                   'Anahi Naranjo',
                   style: TextStyle(
-                    fontSize: 20, 
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
@@ -43,7 +48,16 @@ class SettingsScreen extends StatelessWidget {
                   context: context,
                   icon: Icons.logout,
                   title: 'Cerrar sesión',
-                  onTap: () => context.go('/login'), // Cambia según tu lógica de logout
+                  onTap: () async {
+                    final confirm = await showLogoutConfirmationDialog(context);
+                    if (confirm) {
+                      await Provider.of<AuthService>(
+                        context,
+                        listen: false,
+                      ).logout();
+                      if (context.mounted) context.go('/login');
+                    }
+                  },
                 ),
               ],
             ),
@@ -68,11 +82,7 @@ class SettingsScreen extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
-            BoxShadow(
-              color: Colors.white,
-              blurRadius: 5,
-              spreadRadius: 2,
-            ),
+            BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 2),
           ],
         ),
         child: Row(
