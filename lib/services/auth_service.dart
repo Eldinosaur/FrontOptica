@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import '../utils/secure_storage_service.dart';
 
 class AuthService extends ChangeNotifier {
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'https://eyemedix-api.onrender.com/api')); //ruta del servicio
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://192.168.100.2:8000/api')); //ruta del servicio
   //https://eyemedix-api.onrender.com/api  // servicio en linea
   bool _isAuthenticated = false;
 
