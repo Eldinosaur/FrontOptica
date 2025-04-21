@@ -9,14 +9,15 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    final usuario = authService.usuarioActual;
+
     return Scaffold(
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: 400,
-            ), // Límite de ancho máximo
+            constraints: const BoxConstraints(maxWidth: 400),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -26,9 +27,9 @@ class SettingsScreen extends StatelessWidget {
                   backgroundImage: AssetImage('assets/user.png'),
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'Anahi Naranjo',
-                  style: TextStyle(
+                Text(
+                  usuario?.nombreCompleto ?? 'Usuario',
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -51,10 +52,7 @@ class SettingsScreen extends StatelessWidget {
                   onTap: () async {
                     final confirm = await showLogoutConfirmationDialog(context);
                     if (confirm) {
-                      await Provider.of<AuthService>(
-                        context,
-                        listen: false,
-                      ).logout();
+                      await Provider.of<AuthService>(context, listen: false).logout();
                       if (context.mounted) context.go('/login');
                     }
                   },
@@ -67,7 +65,6 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  // Widget reutilizable para cada opción en la lista
   Widget _buildOption({
     required BuildContext context,
     required IconData icon,
@@ -81,22 +78,19 @@ class SettingsScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 2),
           ],
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: const Color(0xFF16548D), // Consistente con otras vistas
-            ),
+            Icon(icon, color: const Color(0xFF16548D)),
             const SizedBox(width: 16),
             Text(
               title,
               style: const TextStyle(
                 fontSize: 16,
-                color: Colors.black, // Consistente con otras vistas
+                color: Colors.black,
               ),
             ),
           ],

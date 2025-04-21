@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../utils/secure_storage_service.dart';
+import '../models/usuario_model.dart';
 
 class AuthService extends ChangeNotifier {
   final Dio _dio = Dio(BaseOptions(baseUrl: 'http://192.168.100.2:8000/api')); //ruta del servicio
-  //https://eyemedix-api.onrender.com/api  // servicio en linea
+  // https://eyemedix-api.onrender.com/api  // servicio en linea
+
   bool _isAuthenticated = false;
+  Usuario? _usuarioActual;
 
   bool get isAuthenticated => _isAuthenticated;
+  Usuario? get usuarioActual => _usuarioActual;
 
   Future<bool> login(String username, String password) async {
     try {
@@ -21,6 +25,10 @@ class AuthService extends ChangeNotifier {
         if (token != null) {
           await SecureStorageService.saveToken(token);
           _isAuthenticated = true;
+
+          // Construir el usuario desde la respuesta
+          _usuarioActual = Usuario.fromJson(response.data);
+
           notifyListeners();
           return true;
         }
@@ -34,6 +42,7 @@ class AuthService extends ChangeNotifier {
   Future<void> logout() async {
     await SecureStorageService.deleteToken();
     _isAuthenticated = false;
+    _usuarioActual = null;
     notifyListeners();
   }
 
@@ -47,6 +56,7 @@ class AuthService extends ChangeNotifier {
 
         if (response.statusCode == 200) {
           _isAuthenticated = true;
+          _usuarioActual = Usuario.fromJson(response.data);
         } else {
           _isAuthenticated = false;
         }
@@ -56,6 +66,7 @@ class AuthService extends ChangeNotifier {
       notifyListeners();
     } else {
       _isAuthenticated = false;
+      _usuarioActual = null;
     }
   }
 }
