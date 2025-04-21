@@ -7988,7 +7988,7 @@ aw7(){var s=0,r=A.P(t.H),q,p,o,n,m,l,k,j,i
 var $async$aw7=A.Q(function(a,b){if(a===1)return A.M(b,r)
 while(true)switch(s){case 0:if($.a7==null)A.az2()
 $.a7.toString
-q=A.aN2("http://192.168.100.2:8000/api")
+q=A.aN2("https://eyemedix-api.onrender.com/api")
 p=new A.a48($,new A.N5(A.b([B.B4],t.i6)),$,new A.a7o(51200),!1)
 p.as$=q
 p.ax$=new A.a1Y(A.aw(t.lZ))
