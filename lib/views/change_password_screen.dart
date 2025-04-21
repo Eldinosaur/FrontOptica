@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart'; // Importa el paquete de Lottie
+import 'package:lottie/lottie.dart'; // Paquete de animaciones Lottie
+import '../services/auth_service.dart'; // Importa AuthService
+import 'package:provider/provider.dart'; // Usamos Provider para acceder al AuthService
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -15,36 +17,72 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
-  void _submit() {
+  void _submit() async {
     if (_formKey.currentState!.validate()) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Usar Lottie para mostrar una animación de check
-              Lottie.asset(
-                'assets/check.json', // Ruta del archivo .json
-                width: 100, // Tamaño del ícono
-                height: 100,
-                fit: BoxFit.cover,
+      // Obtener los datos del formulario
+      String currentPassword = _currentPasswordController.text;
+      String newPassword = _newPasswordController.text;
+
+      // Llamamos al servicio de cambio de contraseña
+      bool success = await context.read<AuthService>().cambiarClave(currentPassword, newPassword);
+
+      // Mostrar el diálogo de acuerdo al resultado
+      if (success) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Lottie.asset(
+                  'assets/check.json', // Ruta de la animación
+                  width: 100, // Tamaño del ícono
+                  height: 100,
+                  fit: BoxFit.cover,
+                ),
+                const SizedBox(height: 10),
+                const Text('La contraseña se cambió correctamente.'),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Cierra el AlertDialog
+                  context.go('/ajustes'); // Navega a la página de ajustes
+                },
+                child: const Text('Aceptar'),
               ),
-              const SizedBox(height: 10),
-              const Text('La contraseña se cambió correctamente.'),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Cierra el AlertDialog
-                context.go('/ajustes'); // Navega a la página de ajustes
-              },
-              child: const Text('Aceptar'),
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Lottie.asset(
+                  'assets/fail.json', // Ruta de la animación de error
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                ),
+                const SizedBox(height: 10),
+                const Text('Hubo un error al cambiar la contraseña.'),
+              ],
             ),
-          ],
-        ),
-      );
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Cierra el AlertDialog
+                },
+                child: const Text('Aceptar'),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 
@@ -147,13 +185,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: Icon(icon, color: const Color(0xFF16548D)),
-        filled: true,
-        fillColor: Colors.grey[100],
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5),
-          borderSide: BorderSide.none,
+        focusedBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(5)),
+          borderSide: BorderSide(color: Color(0xFF16548D), width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 14),
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(5)),
+        ),
       ),
     );
   }
