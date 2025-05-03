@@ -6,6 +6,7 @@ import 'router/app_router.dart'; // Archivo de rutas
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+
   // Crea una instancia del servicio de autenticación
   final authService = AuthService();
 
