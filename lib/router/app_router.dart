@@ -8,6 +8,7 @@ import '../views/patients_screen.dart';
 import '../views/patient_detail_screen.dart';
 import '../views/settings_screen.dart';
 import '../views/change_password_screen.dart';
+import '../views/rx_detail_screen.dart';
 import '../shell/app_shell.dart';
 import '../services/auth_service.dart';
 
@@ -16,22 +17,16 @@ final GoRouter appRouter = GoRouter(
 
   routes: [
     // Ruta de login fuera del shell
-    GoRoute(
-      path: '/login',
-      builder: (context, state) => const LoginScreen(),
-    ),
+    GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
 
     // Rutas dentro del Shell (estructura común con Drawer, BottomNav, etc.)
     ShellRoute(
       builder: (context, state, child) => AppShell(child: child),
       routes: [
-        GoRoute(
-          path: '/home',
-          builder: (context, state) => const HomeScreen(),
-        ),
+        GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
         GoRoute(
           path: '/pacientes',
-          builder: (context, state) =>  PatientsScreen(),
+          builder: (context, state) => PatientsScreen(),
         ),
         GoRoute(
           path: '/paciente/:id',
@@ -47,6 +42,14 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/cambioclave',
           builder: (context, state) => const ChangePasswordScreen(),
+        ),
+        GoRoute(
+          path: '/consulta_detalle/:idPaciente/:idConsulta',
+          builder: (context, state) {
+            final paciente = state.pathParameters['idPaciente']!;
+            final consulta = state.pathParameters['idConsulta']!;
+            return RxDetailScreen(pacienteId: paciente, consultaId: consulta);
+          },
         ),
       ],
     ),
@@ -70,9 +73,8 @@ final GoRouter appRouter = GoRouter(
     return null; // No redirección necesaria
   },
 
-  errorBuilder: (context, state) => Scaffold(
-    body: Center(
-      child: Text('Ruta no encontrada: ${state.error}'),
-    ),
-  ),
+  errorBuilder:
+      (context, state) => Scaffold(
+        body: Center(child: Text('Ruta no encontrada: ${state.error}')),
+      ),
 );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../models/patient_model.dart';
 import '../services/patient_service.dart';
+import '../widgets/custom_button.dart';  // Asegúrate de que el archivo esté correctamente importado
 import 'package:intl/intl.dart';
 
 class PatientsScreen extends StatefulWidget {
@@ -44,7 +45,10 @@ class _PatientsScreenState extends State<PatientsScreen> {
   // Método para buscar por cédula
   Future<void> _searchByCedula() async {
     final cedula = _cedulaController.text.trim();
-    if (cedula.isEmpty) return; // No hace nada si el campo está vacío
+    if (cedula.isEmpty) {
+      _loadPatients();  // Si no hay cédula, carga todos los pacientes
+      return;
+    }
 
     setState(() => isLoading = true);
     try {
@@ -54,7 +58,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
         // Ordenamos la lista de pacientes por ID
         patients.sort((a, b) => a.id.compareTo(b.id));
       });
-    } catch (e) {
+    } catch (e)      {
       print('Error en búsqueda por cédula: $e');
     } finally {
       setState(() => isLoading = false);
@@ -64,7 +68,10 @@ class _PatientsScreenState extends State<PatientsScreen> {
   // Método para buscar por nombre
   Future<void> _searchByNombre() async {
     final nombre = _nombreController.text.trim();
-    if (nombre.isEmpty) return; // No hace nada si el campo está vacío
+    if (nombre.isEmpty) {
+      _loadPatients();  // Si no hay nombre, carga todos los pacientes
+      return;
+    }
 
     setState(() => isLoading = true);
     try {
@@ -81,39 +88,59 @@ class _PatientsScreenState extends State<PatientsScreen> {
     }
   }
 
+  // Método para mostrar una vista para agregar paciente (aquí puedes personalizar)
+  void _onAddPatient() {
+    print("Botón de agregar paciente presionado.");
+    // Redirigir a la pantalla de agregar paciente si es necesario
+    context.go('/agregar_paciente'); // Asegúrate de que esta ruta esté definida
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 20),
-        const Text(
-          "Búsqueda de Pacientes",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 20),
-
-        // Filtros de búsqueda
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Pacientes'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center, // Centrar todo
           children: [
-            _buildSearchField(
-              "Buscar por Cédula",
-              _cedulaController,
-              _searchByCedula,
+            const SizedBox(height: 20),
+            const Text(
+              "Búsqueda de Pacientes",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            _buildSearchField(
-              "Buscar por Nombre",
-              _nombreController,
-              _searchByNombre,
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-        // Tabla o cargando
-        Expanded(
-          child:
-              isLoading
+            // Filtros de búsqueda en filas separadas
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildSearchField(
+                  "Buscar por Cédula",
+                  _cedulaController,
+                  _searchByCedula,
+                ),
+                const SizedBox(height: 10), // Espaciado entre los campos
+                _buildSearchField(
+                  "Buscar por Nombre",
+                  _nombreController,
+                  _searchByNombre,
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Botón de agregar paciente (con PrimaryButton)
+            PrimaryButton(
+              onPressed: _onAddPatient,  // Acción de agregar paciente
+              label: 'Agregar Paciente',
+              icon: Icons.add,
+            ),
+
+            // Tabla o cargando
+            Expanded(
+              child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
@@ -149,8 +176,10 @@ class _PatientsScreenState extends State<PatientsScreen> {
                         }).toList(),
                       ),
                     ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -161,7 +190,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
     VoidCallback onSearch,
   ) {
     return SizedBox(
-      width: 220,
+      width: 300,  // Puedes ajustar el tamaño
       child: TextField(
         controller: controller,
         decoration: InputDecoration(

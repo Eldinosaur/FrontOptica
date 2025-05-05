@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart'; // Paquete de animaciones Lottie
 import '../services/auth_service.dart'; // Importa AuthService
 import 'package:provider/provider.dart'; // Usamos Provider para acceder al AuthService
+import '../widgets/custom_button.dart';  // Importa el widget PrimaryButton
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -145,19 +146,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             },
                           ),
                           const SizedBox(height: 20),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _submit,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF16548D),
-                                padding: const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                              ),
-                              child: const Text('Guardar', style: TextStyle(color: Colors.white, fontSize: 16)),
-                            ),
+                          // Usando PrimaryButton en lugar de ElevatedButton
+                          PrimaryButton(
+                            onPressed: _submit,
+                            label: 'Guardar Cambios',
+                            icon: Icons.save,
                           ),
                         ],
                       ),
