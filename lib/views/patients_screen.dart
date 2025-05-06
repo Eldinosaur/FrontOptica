@@ -2,8 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../models/patient_model.dart';
 import '../services/patient_service.dart';
-import '../widgets/custom_button.dart'; // Asegúrate de que el archivo esté correctamente importado
+import '../widgets/custom_button.dart';
 import 'package:intl/intl.dart';
+
+class _TableHeader extends StatelessWidget {
+  final String text;
+  const _TableHeader(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
+
+class _TableCell extends StatelessWidget {
+  final String text;
+  const _TableCell(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 14),
+      ),
+    );
+  }
+}
 
 class PatientsScreen extends StatefulWidget {
   const PatientsScreen({super.key});
@@ -98,87 +133,117 @@ class _PatientsScreenState extends State<PatientsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Pacientes')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Centrar todo
-          children: [
-            const SizedBox(height: 20),
-            const Text(
-              "Búsqueda de Pacientes",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1000),
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Búsqueda de Pacientes",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
 
-            // Filtros de búsqueda en filas separadas
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildSearchField(
-                  "Buscar por Cédula",
-                  _cedulaController,
-                  _searchByCedula,
-                ),
-                const SizedBox(height: 10), // Espaciado entre los campos
-                _buildSearchField(
-                  "Buscar por Nombre",
-                  _nombreController,
-                  _searchByNombre,
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
+                  // Filtros
+                  _buildSearchField(
+                    "Buscar por Cédula",
+                    _cedulaController,
+                    _searchByCedula,
+                  ),
+                  const SizedBox(height: 10),
+                  _buildSearchField(
+                    "Buscar por Nombre",
+                    _nombreController,
+                    _searchByNombre,
+                  ),
+                  const SizedBox(height: 20),
 
-            // Botón de agregar paciente (con PrimaryButton)
-            PrimaryButton(
-              onPressed: _onAddPatient, // Acción de agregar paciente
-              label: 'Agregar Paciente',
-              icon: Icons.add,
-            ),
+                  // Botón
+                  PrimaryButton(
+                    onPressed: _onAddPatient,
+                    label: 'Agregar Paciente',
+                    icon: Icons.add,
+                  ),
+                  const SizedBox(height: 20),
 
-            // Tabla o cargando
-            Expanded(
-              child:
-                  isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          showCheckboxColumn: false, // Eliminar checkboxes
-                          columns: const [
-                            DataColumn(label: Text("N°")),
-                            DataColumn(label: Text("Cédula")),
-                            DataColumn(label: Text("Nombres")),
-                            DataColumn(label: Text("Apellidos")),
-                            DataColumn(label: Text("Última Consulta")),
-                          ],
-                          rows:
-                              patients.map((paciente) {
-                                return DataRow(
-                                  cells: [
-                                    DataCell(Text(paciente.id.toString())),
-                                    DataCell(Text(paciente.cedula)),
-                                    DataCell(Text(paciente.nombres)),
-                                    DataCell(Text(paciente.apellidos)),
-                                    DataCell(
-                                      Text(
-                                        paciente.ultimaConsulta != null
-                                            ? DateFormat(
-                                              "dd-MM-yyyy",
-                                            ).format(paciente.ultimaConsulta!)
-                                            : "Sin datos",
-                                      ),
-                                    ),
-                                  ],
-                                  onSelectChanged: (_) {
-                                    context.go('/paciente/${paciente.id}');
-                                  },
-                                );
-                              }).toList(),
+                  // Tabla (con altura dinámica calculada)
+                  Expanded(
+                    child: Column(
+                      children: [
+                        // Encabezado
+                        Container(
+                          color: const Color(0xFF16548D),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 8,
+                          ),
+                          child: Row(
+                            children: const [
+                              _TableHeader("N°"),
+                              _TableHeader("Cédula"),
+                              _TableHeader("Nombres"),
+                              _TableHeader("Apellidos"),
+                              _TableHeader("Última Consulta"),
+                            ],
+                          ),
                         ),
-                      ),
+
+                        // Lista scrolleable
+                        Expanded(
+                          child:
+                              isLoading
+                                  ? const Center(
+                                    child: CircularProgressIndicator(),
+                                  )
+                                  : ListView.builder(
+                                    itemCount: patients.length,
+                                    itemBuilder: (context, index) {
+                                      final paciente = patients[index];
+                                      return InkWell(
+                                        onTap:
+                                            () => context.go(
+                                              '/paciente/${paciente.id}',
+                                            ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 12,
+                                            horizontal: 8,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              _TableCell(
+                                                paciente.id.toString(),
+                                              ),
+                                              _TableCell(paciente.cedula),
+                                              _TableCell(paciente.nombres),
+                                              _TableCell(paciente.apellidos),
+                                              _TableCell(
+                                                paciente.ultimaConsulta != null
+                                                    ? DateFormat(
+                                                      "dd-MM-yyyy",
+                                                    ).format(
+                                                      paciente.ultimaConsulta!,
+                                                    )
+                                                    : "Sin datos",
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
