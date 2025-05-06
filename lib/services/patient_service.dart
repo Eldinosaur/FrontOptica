@@ -4,7 +4,7 @@ import '../utils/secure_storage_service.dart';
 
 class PatientService {
   static final Dio _dio = Dio(
-    BaseOptions(baseUrl: 'http://192.168.100.2:8000/api'),
+    BaseOptions(baseUrl: 'https://eyemedix-api.onrender.com/api'),
   );
 
   // Método para obtener el token desde almacenamiento seguro
@@ -102,5 +102,19 @@ class PatientService {
       print('Error en getPatientById: $e');
       rethrow;
     }
+  }
+
+  //Creacion de paciente
+  static Future<Map<String, dynamic>> createPatient(
+    Map<String, dynamic> data,
+  ) async {
+    final token = await SecureStorageService.getToken();
+    final response = await _dio.post(
+      '/paciente', // asegúrate de que esta sea la ruta correcta
+      data: data,
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+
+    return response.data;
   }
 }

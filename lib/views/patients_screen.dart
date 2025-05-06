@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../models/patient_model.dart';
 import '../services/patient_service.dart';
-import '../widgets/custom_button.dart';  // Asegúrate de que el archivo esté correctamente importado
+import '../widgets/custom_button.dart'; // Asegúrate de que el archivo esté correctamente importado
 import 'package:intl/intl.dart';
 
 class PatientsScreen extends StatefulWidget {
@@ -46,7 +46,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
   Future<void> _searchByCedula() async {
     final cedula = _cedulaController.text.trim();
     if (cedula.isEmpty) {
-      _loadPatients();  // Si no hay cédula, carga todos los pacientes
+      _loadPatients(); // Si no hay cédula, carga todos los pacientes
       return;
     }
 
@@ -58,7 +58,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
         // Ordenamos la lista de pacientes por ID
         patients.sort((a, b) => a.id.compareTo(b.id));
       });
-    } catch (e)      {
+    } catch (e) {
       print('Error en búsqueda por cédula: $e');
     } finally {
       setState(() => isLoading = false);
@@ -69,7 +69,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
   Future<void> _searchByNombre() async {
     final nombre = _nombreController.text.trim();
     if (nombre.isEmpty) {
-      _loadPatients();  // Si no hay nombre, carga todos los pacientes
+      _loadPatients(); // Si no hay nombre, carga todos los pacientes
       return;
     }
 
@@ -90,7 +90,6 @@ class _PatientsScreenState extends State<PatientsScreen> {
 
   // Método para mostrar una vista para agregar paciente (aquí puedes personalizar)
   void _onAddPatient() {
-    print("Botón de agregar paciente presionado.");
     // Redirigir a la pantalla de agregar paciente si es necesario
     context.go('/agregar_paciente'); // Asegúrate de que esta ruta esté definida
   }
@@ -98,9 +97,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pacientes'),
-      ),
+      appBar: AppBar(title: const Text('Pacientes')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center, // Centrar todo
@@ -133,49 +130,52 @@ class _PatientsScreenState extends State<PatientsScreen> {
 
             // Botón de agregar paciente (con PrimaryButton)
             PrimaryButton(
-              onPressed: _onAddPatient,  // Acción de agregar paciente
+              onPressed: _onAddPatient, // Acción de agregar paciente
               label: 'Agregar Paciente',
               icon: Icons.add,
             ),
 
             // Tabla o cargando
             Expanded(
-              child: isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        showCheckboxColumn: false, // Eliminar checkboxes
-                        columns: const [
-                          DataColumn(label: Text("N°")),
-                          DataColumn(label: Text("Cédula")),
-                          DataColumn(label: Text("Nombres")),
-                          DataColumn(label: Text("Apellidos")),
-                          DataColumn(label: Text("Última Consulta")),
-                        ],
-                        rows: patients.map((paciente) {
-                          return DataRow(
-                            cells: [
-                              DataCell(Text(paciente.id.toString())),
-                              DataCell(Text(paciente.cedula)),
-                              DataCell(Text(paciente.nombres)),
-                              DataCell(Text(paciente.apellidos)),
-                              DataCell(
-                                Text(
-                                  paciente.ultimaConsulta != null
-                                      ? DateFormat("dd-MM-yyyy")
-                                          .format(paciente.ultimaConsulta!)
-                                      : "Sin datos",
-                                ),
-                              ),
-                            ],
-                            onSelectChanged: (_) {
-                              context.go('/paciente/${paciente.id}');
-                            },
-                          );
-                        }).toList(),
+              child:
+                  isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          showCheckboxColumn: false, // Eliminar checkboxes
+                          columns: const [
+                            DataColumn(label: Text("N°")),
+                            DataColumn(label: Text("Cédula")),
+                            DataColumn(label: Text("Nombres")),
+                            DataColumn(label: Text("Apellidos")),
+                            DataColumn(label: Text("Última Consulta")),
+                          ],
+                          rows:
+                              patients.map((paciente) {
+                                return DataRow(
+                                  cells: [
+                                    DataCell(Text(paciente.id.toString())),
+                                    DataCell(Text(paciente.cedula)),
+                                    DataCell(Text(paciente.nombres)),
+                                    DataCell(Text(paciente.apellidos)),
+                                    DataCell(
+                                      Text(
+                                        paciente.ultimaConsulta != null
+                                            ? DateFormat(
+                                              "dd-MM-yyyy",
+                                            ).format(paciente.ultimaConsulta!)
+                                            : "Sin datos",
+                                      ),
+                                    ),
+                                  ],
+                                  onSelectChanged: (_) {
+                                    context.go('/paciente/${paciente.id}');
+                                  },
+                                );
+                              }).toList(),
+                        ),
                       ),
-                    ),
             ),
           ],
         ),
@@ -190,18 +190,37 @@ class _PatientsScreenState extends State<PatientsScreen> {
     VoidCallback onSearch,
   ) {
     return SizedBox(
-      width: 300,  // Puedes ajustar el tamaño
+      width: 300,
       child: TextField(
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          suffixIcon: IconButton(
-            icon: const Icon(Icons.search, color: Color(0xFF16548D)),
-            onPressed: onSearch,
+          suffixIcon: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Botón para borrar el campo
+              if (controller.text.isNotEmpty)
+                IconButton(
+                  icon: const Icon(Icons.clear, color: Colors.grey),
+                  onPressed: () {
+                    setState(() {
+                      controller.clear();
+                    });
+                    _loadPatients(); // Recargar todos los pacientes
+                  },
+                ),
+              // Botón de búsqueda
+              IconButton(
+                icon: const Icon(Icons.search, color: Color(0xFF16548D)),
+                onPressed: onSearch,
+              ),
+            ],
           ),
           border: const OutlineInputBorder(),
         ),
-        onSubmitted: (_) => onSearch(), // También busca al presionar Enter
+        onChanged:
+            (_) => setState(() {}), // Para que se actualice el botón de clear
+        onSubmitted: (_) => onSearch(),
       ),
     );
   }
