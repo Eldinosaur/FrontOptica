@@ -59,14 +59,14 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/logo.PNG"
+  image_path: "assets/logooptica.png"
 
 # The following section is specific to Flutter packages.
 flutter:
   assets:
     - "assets/check.json"
     - "assets/fail.json"
-    - "assets/logo.PNG"
+    - "assets/logooptica.png"
     - "assets/bg.jpg"
     - "assets/user.png"
 

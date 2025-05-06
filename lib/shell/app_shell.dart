@@ -25,7 +25,7 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('EyeMedix')),
+      appBar: AppBar(title: const Text('Gestión de Pacientes')),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,

@@ -15,7 +15,7 @@ class HomeScreen extends StatelessWidget {
           maxHeight: screenHeight * 0.5, // Hasta el 50% del alto de pantalla
         ),
         child: Image.asset(
-          'assets/logo.PNG',
+          'assets/logooptica.png',
           fit: BoxFit.contain, // Mantiene el aspecto original sin recortes
         ),
       ),

@@ -56,9 +56,14 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Nombre del sistema
+                Image.asset(
+                  'assets/logooptica.png', 
+                  width: 500,
+                  height: 200,
+                ),
+                const SizedBox(height: 10),
                 const Text(
-                  "EyeMedix",
+                  "Inicio de Sesión",
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
