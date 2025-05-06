@@ -7,6 +7,7 @@ import '../views/home_screen.dart';
 import '../views/add_patient_screen.dart';
 import '../views/patients_screen.dart';
 import '../views/patient_detail_screen.dart';
+import '../views/edit_patient_screen.dart';
 import '../views/settings_screen.dart';
 import '../views/change_password_screen.dart';
 import '../views/rx_detail_screen.dart';
@@ -24,10 +25,7 @@ final GoRouter appRouter = GoRouter(
     ShellRoute(
       builder: (context, state, child) => AppShell(child: child),
       routes: [
-        GoRoute(
-          path: '/home', 
-          builder: (context, state) => const HomeScreen()
-        ),
+        GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
         GoRoute(
           path: '/pacientes',
           builder: (context, state) => PatientsScreen(),
@@ -42,6 +40,13 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/agregar_paciente',
           builder: (context, state) => AddPatientScreen(),
+        ),
+        GoRoute(
+          path: '/editar_paciente/:id',
+          builder: (context, state) {
+            final pacienteId = state.pathParameters['id']!;
+            return EditPatientScreen(pacienteId: pacienteId);
+          },
         ),
         GoRoute(
           path: '/ajustes',

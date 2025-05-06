@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lottie/lottie.dart'; // Paquete de animaciones Lottie
-import '../services/auth_service.dart'; // Importa AuthService
-import 'package:provider/provider.dart'; // Usamos Provider para acceder al AuthService
-import '../widgets/custom_button.dart';  // Importa el widget PrimaryButton
+import 'package:lottie/lottie.dart';
+import '../services/auth_service.dart';
+import 'package:provider/provider.dart';
+import '../widgets/custom_button.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -14,75 +14,59 @@ class ChangePasswordScreen extends StatefulWidget {
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _currentPasswordController = TextEditingController();
+  final TextEditingController _currentPasswordController =
+      TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   void _submit() async {
     if (_formKey.currentState!.validate()) {
-      // Obtener los datos del formulario
       String currentPassword = _currentPasswordController.text;
       String newPassword = _newPasswordController.text;
 
-      // Llamamos al servicio de cambio de contraseña
-      bool success = await context.read<AuthService>().cambiarClave(currentPassword, newPassword);
+      bool success = await context.read<AuthService>().cambiarClave(
+        currentPassword,
+        newPassword,
+      );
 
-      // Mostrar el diálogo de acuerdo al resultado
-      if (success) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Lottie.asset(
-                  'assets/check.json', // Ruta de la animación
-                  width: 100, // Tamaño del ícono
-                  height: 100,
-                  fit: BoxFit.cover,
+      if (!context.mounted) return;
+
+      await showDialog(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Lottie.asset(
+                    success ? 'assets/check.json' : 'assets/fail.json',
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    success
+                        ? 'La contraseña se cambió correctamente.'
+                        : 'Hubo un error al cambiar la contraseña.',
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Cierra el AlertDialog
+                  },
+                  child: const Text('Aceptar'),
                 ),
-                const SizedBox(height: 10),
-                const Text('La contraseña se cambió correctamente.'),
               ],
             ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // Cierra el AlertDialog
-                  context.go('/ajustes'); // Navega a la página de ajustes
-                },
-                child: const Text('Aceptar'),
-              ),
-            ],
-          ),
-        );
-      } else {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Lottie.asset(
-                  'assets/fail.json', // Ruta de la animación de error
-                  width: 100,
-                  height: 100,
-                  fit: BoxFit.cover,
-                ),
-                const SizedBox(height: 10),
-                const Text('Hubo un error al cambiar la contraseña.'),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // Cierra el AlertDialog
-                },
-                child: const Text('Aceptar'),
-              ),
-            ],
-          ),
-        );
+      );
+
+      // Redirige si la operación fue exitosa, incluso si cerró tocando fuera
+      if (success && context.mounted) {
+        context.go('/ajustes');
       }
     }
   }
@@ -114,9 +98,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 Align(
                   alignment: Alignment.center,
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: 400, // Limita el ancho del formulario
-                    ),
+                    constraints: const BoxConstraints(maxWidth: 400),
                     child: Form(
                       key: _formKey,
                       child: Column(
@@ -146,7 +128,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             },
                           ),
                           const SizedBox(height: 20),
-                          // Usando PrimaryButton en lugar de ElevatedButton
                           PrimaryButton(
                             onPressed: _submit,
                             label: 'Guardar Cambios',
@@ -174,7 +155,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     return TextFormField(
       controller: controller,
       obscureText: true,
-      validator: validator ?? (value) => (value == null || value.isEmpty) ? 'Este campo es obligatorio' : null,
+      validator:
+          validator ??
+          (value) =>
+              (value == null || value.isEmpty)
+                  ? 'Este campo es obligatorio'
+                  : null,
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: Icon(icon, color: const Color(0xFF16548D)),

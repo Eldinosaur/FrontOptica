@@ -194,17 +194,10 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
       runSpacing: 12,
       children: [
         PrimaryButton(
-          label: "Editar Paciente",
+          label: "Editar Datos",
           icon: Icons.edit,
           onPressed: () {
-            // Acción de editar
-          },
-        ),
-        PrimaryButton(
-          label: "Agregar Consulta",
-          icon: Icons.note_add,
-          onPressed: () {
-            // Acción agregar consulta
+            context.push('/editar_paciente/${widget.pacienteId}');
           },
         ),
         PrimaryButton(
@@ -303,82 +296,82 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
     );
   }
 
-
-
-Widget buildExpansionContacto(List<Map<String, dynamic>> consultas) {
-  return Center(
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 600),
-      child: Card(
-        elevation: 2,
-        margin: const EdgeInsets.symmetric(vertical: 12),
-        child: ExpansionTile(
-          title: const Text("Consultas de Lentes de Contacto"),
-          leading: const Icon(Icons.visibility),
-          children: [
-            Scrollbar(
-              thumbVisibility: true,
-              controller: _horizontalScrollController,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
+  Widget buildExpansionContacto(List<Map<String, dynamic>> consultas) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: Card(
+          elevation: 2,
+          margin: const EdgeInsets.symmetric(vertical: 12),
+          child: ExpansionTile(
+            title: const Text("Consultas de Lentes de Contacto"),
+            leading: const Icon(Icons.visibility),
+            children: [
+              Scrollbar(
+                thumbVisibility: true,
                 controller: _horizontalScrollController,
-                child: DataTable(
-                  showCheckboxColumn: false,
-                  columns: const [
-                    DataColumn(label: Text('Fecha')),
-                    DataColumn(label: Text('OD (SPH/CYL/EJE/ADD/BC/DIA)')),
-                    DataColumn(label: Text('OI (SPH/CYL/EJE/ADD/BC/DIA)')),
-                    DataColumn(label: Text('Marca')),
-                    DataColumn(label: Text('Tiempo de Uso')),
-                  ],
-                  rows: consultas.map((consulta) {
-                    final receta = consulta['receta']?['receta_contacto'];
-                    return DataRow(
-                      onSelectChanged: (_) {
-                        final idConsulta = consulta['IDconsulta'];
-                        context.push(
-                          '/consulta_detalle/${widget.pacienteId}/$idConsulta',
-                        );
-                      },
-                      cells: [
-                        DataCell(Text(formatFecha(consulta['FConsulta']))),
-                        DataCell(
-                          Text(
-                            receta != null
-                                ? '${receta['OD_SPH']} / ${receta['OD_CYL']} / ${receta['OD_AXIS']} / ${receta['OD_ADD']} / ${receta['OD_BC']} / ${receta['OD_DIA']}'
-                                : 'No disponible',
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            receta != null
-                                ? '${receta['OI_SPH']} / ${receta['OI_CYL']} / ${receta['OI_AXIS']} / ${receta['OI_ADD']} / ${receta['OI_BC']} / ${receta['OI_DIA']}'
-                                : 'No disponible',
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            receta != null
-                                ? receta['MarcaLente'] ?? 'No disponible'
-                                : 'No disponible',
-                          ),
-                        ),
-                        DataCell(
-                          Text(receta?['TiempoUso'] ?? 'No definido'),
-                        ),
-                      ],
-                    );
-                  }).toList(),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  controller: _horizontalScrollController,
+                  child: DataTable(
+                    showCheckboxColumn: false,
+                    columns: const [
+                      DataColumn(label: Text('Fecha')),
+                      DataColumn(label: Text('OD (SPH/CYL/EJE/ADD/BC/DIA)')),
+                      DataColumn(label: Text('OI (SPH/CYL/EJE/ADD/BC/DIA)')),
+                      DataColumn(label: Text('Marca')),
+                      DataColumn(label: Text('Tiempo de Uso')),
+                    ],
+                    rows:
+                        consultas.map((consulta) {
+                          final receta = consulta['receta']?['receta_contacto'];
+                          return DataRow(
+                            onSelectChanged: (_) {
+                              final idConsulta = consulta['IDconsulta'];
+                              context.push(
+                                '/consulta_detalle/${widget.pacienteId}/$idConsulta',
+                              );
+                            },
+                            cells: [
+                              DataCell(
+                                Text(formatFecha(consulta['FConsulta'])),
+                              ),
+                              DataCell(
+                                Text(
+                                  receta != null
+                                      ? '${receta['OD_SPH']} / ${receta['OD_CYL']} / ${receta['OD_AXIS']} / ${receta['OD_ADD']} / ${receta['OD_BC']} / ${receta['OD_DIA']}'
+                                      : 'No disponible',
+                                ),
+                              ),
+                              DataCell(
+                                Text(
+                                  receta != null
+                                      ? '${receta['OI_SPH']} / ${receta['OI_CYL']} / ${receta['OI_AXIS']} / ${receta['OI_ADD']} / ${receta['OI_BC']} / ${receta['OI_DIA']}'
+                                      : 'No disponible',
+                                ),
+                              ),
+                              DataCell(
+                                Text(
+                                  receta != null
+                                      ? receta['MarcaLente'] ?? 'No disponible'
+                                      : 'No disponible',
+                                ),
+                              ),
+                              DataCell(
+                                Text(receta?['TiempoUso'] ?? 'No definido'),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget buildDetailRow(String label, String value) {
     return Padding(

@@ -110,11 +110,25 @@ class PatientService {
   ) async {
     final token = await SecureStorageService.getToken();
     final response = await _dio.post(
-      '/paciente', // asegúrate de que esta sea la ruta correcta
+      '/paciente', 
       data: data,
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
 
     return response.data;
   }
+
+  //Actualizacion de Paciente
+  static Future<void> updatePatient(String id, Map<String, dynamic> data) async {
+  final token = await SecureStorageService.getToken(); // si usas auth
+  final response = await _dio.put(
+    '/$id',
+    data: data,
+    options: Options(headers: {"Authorization": "Bearer $token"}),
+  );
+  if (response.statusCode != 200) {
+    throw Exception(response.data['detail'] ?? "Error al actualizar paciente");
+  }
+}
+
 }

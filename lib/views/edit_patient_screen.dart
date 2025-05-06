@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
-import '../models/new_patient_model.dart';
 import '../services/patient_service.dart';
-import '../widgets/custom_button.dart'; // Tu botón personalizado
+import '../widgets/custom_button.dart';
 
-class AddPatientScreen extends StatefulWidget {
-  const AddPatientScreen({super.key});
+class EditPatientScreen extends StatefulWidget {
+  final String pacienteId;
+  const EditPatientScreen({super.key, required this.pacienteId});
 
   @override
-  State<AddPatientScreen> createState() => _AddPatientScreenState();
+  State<EditPatientScreen> createState() => _EditPatientScreenState();
 }
 
-class _AddPatientScreenState extends State<AddPatientScreen> {
+class _EditPatientScreenState extends State<EditPatientScreen> {
   final _formKey = GlobalKey<FormState>();
   final _cedulaController = TextEditingController();
   final _nombreController = TextEditingController();
@@ -26,101 +26,131 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
   final _antecedentesController = TextEditingController();
   final _condicionesController = TextEditingController();
   DateTime? _selectedDate;
-  bool isLoading = false;
+  bool isLoading = true;
 
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate() || _selectedDate == null) return;
+  @override
+  void initState() {
+    super.initState();
+    _loadPatientData();
+  }
 
-    final nuevoPaciente = NewPatient(
-      cedula: _cedulaController.text.trim(),
-      nombres: _nombreController.text.trim(),
-      apellidos: _apellidoController.text.trim(),
-      fechaNacimiento: _selectedDate!,
-      ocupacion: _ocupacionController.text.trim(),
-      telefono: _telefonoController.text.trim(),
-      correo: _correoController.text.trim(),
-      direccion: _direccionController.text.trim(),
-      antecedentes: _antecedentesController.text.trim(),
-      condicionesMedicas: _condicionesController.text.trim(),
-    );
-
-    setState(() => isLoading = true);
-
+  Future<void> _loadPatientData() async {
     try {
-      final response = await PatientService.createPatient(
-        nuevoPaciente.toJson(),
-      );
-      final pacienteId = response['IDpaciente'];
+      final patient = await PatientService.getPatientById(widget.pacienteId);
 
-      if (context.mounted) {
-        final result = await showDialog<bool>(
-          context: context,
-          barrierDismissible: true, // permite tocar fuera para cerrar
-          builder:
-              (_) => AlertDialog(
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Lottie.asset('assets/check.json', width: 100, height: 100),
-                    const SizedBox(height: 10),
-                    const Text('Paciente agregado exitosamente.'),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context, rootNavigator: true).pop(true);
-                    },
-                    child: const Text('Aceptar'),
-                  ),
-                ],
-              ),
-        );
-
-        if (result != false) {
-          context.go('/paciente/$pacienteId');
-        }
-      }
+      _cedulaController.text = patient.cedula;
+      _nombreController.text = patient.nombres;
+      _apellidoController.text = patient.apellidos;
+      _selectedDate = patient.fechaNacimiento;
+      _fnacimientoController.text = DateFormat(
+        'yyyy-MM-dd',
+      ).format(patient.fechaNacimiento);
+      _ocupacionController.text = patient.ocupacion;
+      _telefonoController.text = patient.telefono;
+      _correoController.text = patient.correo;
+      _direccionController.text = patient.direccion;
+      _antecedentesController.text = patient.antecedentes;
+      _condicionesController.text = patient.condicionesMedicas;
     } catch (e) {
       if (context.mounted) {
-        final result = await showDialog<bool>(
-          context: context,
-          barrierDismissible: true,
-          builder:
-              (_) => AlertDialog(
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Lottie.asset('assets/fail.json', width: 100, height: 100),
-                    const SizedBox(height: 10),
-                    Text('Error al agregar paciente: $e'),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context, rootNavigator: true).pop(true);
-                    },
-                    child: const Text('Aceptar'),
-                  ),
-                ],
-              ),
-        );
-
-        if (result != false) {
-          context
-              .pop(); // O simplemente cerrar el modal si quieres volver atrás
-        }
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error al cargar paciente: $e")));
       }
     } finally {
       setState(() => isLoading = false);
     }
   }
 
+  Future<void> _submit() async {
+  if (!_formKey.currentState!.validate() || _selectedDate == null) return;
+
+  final data = {
+    "Cedula": _cedulaController.text.trim(),
+    "Nombre": _nombreController.text.trim(),
+    "Apellido": _apellidoController.text.trim(),
+    "FNacimiento": DateFormat('yyyy-MM-dd').format(_selectedDate!),
+    "Ocupacion": _ocupacionController.text.trim(),
+    "Telefono": _telefonoController.text.trim(),
+    "Correo": _correoController.text.trim(),
+    "Direccion": _direccionController.text.trim(),
+    "Antecedentes": _antecedentesController.text.trim(),
+    "CondicionesMedicas": _condicionesController.text.trim(),
+  };
+
+  setState(() => isLoading = true);
+
+  try {
+    await PatientService.updatePatient(widget.pacienteId, data);
+
+    if (context.mounted) {
+      final result = await showDialog<bool>(
+        context: context,
+        barrierDismissible: true, // permite cerrar tocando fuera
+        builder: (_) => AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Lottie.asset('assets/check.json', width: 100, height: 100),
+              const SizedBox(height: 10),
+              const Text('Paciente actualizado correctamente.'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).pop(true);
+              },
+              child: const Text('Aceptar'),
+            ),
+          ],
+        ),
+      );
+
+      // Si el usuario cerró tocando fuera o aceptó
+      if (result != false) {
+        context.pushReplacement('/paciente/${widget.pacienteId}');
+      }
+    }
+  } catch (e) {
+    if (context.mounted) {
+      final result = await showDialog<bool>(
+        context: context,
+        barrierDismissible: true,
+        builder: (_) => AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Lottie.asset('assets/fail.json', width: 100, height: 100),
+              const SizedBox(height: 10),
+              Text('Error al actualizar paciente: $e'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).pop(true);
+              },
+              child: const Text('Aceptar'),
+            ),
+          ],
+        ),
+      );
+
+      if (result != false) {
+        context.pushReplacement('/paciente/${widget.pacienteId}');
+      }
+    }
+  } finally {
+    setState(() => isLoading = false);
+  }
+}
+
+
   Future<void> _selectDate(BuildContext context) async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: _selectedDate ?? DateTime.now(),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
@@ -151,7 +181,7 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Agregar Paciente')),
+      appBar: AppBar(title: const Text('Editar Paciente')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -186,7 +216,7 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
                           const SizedBox(height: 20),
                           PrimaryButton(
                             onPressed: _submit,
-                            label: 'Guardar Paciente',
+                            label: 'Actualizar Datos',
                             icon: Icons.save,
                           ),
                         ],
