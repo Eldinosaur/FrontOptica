@@ -94,169 +94,232 @@ class _RxDetailScreenState extends State<RxDetailScreen> {
   }
 
   Widget buildPatientCard(Patient patient) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const Text(
-              "Información del Paciente",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                const Text(
+                  "Información del Paciente",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                buildDetailRow("Cédula", patient.cedula),
+                buildDetailRow("Nombre", patient.nombres),
+                buildDetailRow("Apellido", patient.apellidos),
+                buildDetailRow(
+                  "Fecha de Nacimiento",
+                  formatFecha(patient.fechaNacimiento.toString()),
+                ),
+                buildDetailRow("Ocupación", patient.ocupacion),
+                buildDetailRow("Teléfono", patient.telefono),
+                buildDetailRow("Correo", patient.correo),
+                buildDetailRow("Dirección", patient.direccion),
+                buildDetailRow("Antecedentes", patient.antecedentes),
+                buildDetailRow(
+                  "Condiciones Médicas",
+                  patient.condicionesMedicas,
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            buildDetailRow("Cédula", patient.cedula),
-            buildDetailRow("Nombre", patient.nombres),
-            buildDetailRow("Apellido", patient.apellidos),
-            buildDetailRow(
-              "Fecha de Nacimiento",
-              formatFecha(patient.fechaNacimiento.toString()),
-            ),
-            buildDetailRow("Ocupación", patient.ocupacion),
-            buildDetailRow("Teléfono", patient.telefono),
-            buildDetailRow("Correo", patient.correo),
-            buildDetailRow("Dirección", patient.direccion),
-            buildDetailRow("Antecedentes", patient.antecedentes),
-            buildDetailRow("Condiciones Médicas", patient.condicionesMedicas),
-          ],
+          ),
         ),
       ),
     );
   }
 
   Widget buildConsultaDetailCard(ConsultaCompleta consulta) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const Text(
-              "Detalle de la Consulta",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            buildDetailRow("Motivo", consulta.motivo),
-            buildDetailRow("Observaciones", consulta.observaciones),
-            buildDetailRow(
-              "Fecha de Consulta",
-              formatFecha(consulta.fConsulta.toString()),
-            ),
-            if (consulta.receta != null) ...[
-              const SizedBox(height: 24),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Receta",
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                const Text(
+                  "Detalle de la Consulta",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-              ),
-              buildRecetaCard(consulta.receta!),
-            ],
-          ],
+                const SizedBox(height: 16),
+                buildDetailRow("Motivo", consulta.motivo),
+                buildDetailRow("Observaciones", consulta.observaciones),
+                buildDetailRow(
+                  "Fecha de Consulta",
+                  formatFecha(consulta.fConsulta.toString()),
+                ),
+                if (consulta.receta != null) ...[
+                  const SizedBox(height: 24),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Receta",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  buildRecetaCard(consulta.receta!),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
   Widget buildRecetaCard(RecetaBaseOut receta) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            buildDetailRow(
-              "Tipo de Lente",
-              receta.tipoLente == 1 ? "Armazón" : "Contacto",
-            ),
-            buildDetailRow(
-              "Fecha de Receta",
-              formatFecha(receta.fecha.toString()),
-            ),
-            if (receta.recetaArmazones != null) ...[
-              const SizedBox(height: 16),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Receta de Armazón",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                buildDetailRow(
+                  "Tipo de Lente",
+                  receta.tipoLente == 1 ? "Armazón" : "Contacto",
                 ),
-              ),
-              buildDetailRow(
-                "OD SPH",
-                receta.recetaArmazones!.odSph.toString(),
-              ),
-              buildDetailRow(
-                "OD CYL",
-                receta.recetaArmazones!.odCyl.toString(),
-              ),
-              buildDetailRow(
-                "OD AXIS",
-                receta.recetaArmazones!.odAxis.toString(),
-              ),
-              buildDetailRow(
-                "OD ADD",
-                receta.recetaArmazones!.odAdd.toString(),
-              ),
-              buildDetailRow(
-                "OI SPH",
-                receta.recetaArmazones!.oiSph.toString(),
-              ),
-              buildDetailRow(
-                "OI CYL",
-                receta.recetaArmazones!.oiCyl.toString(),
-              ),
-              buildDetailRow(
-                "OI AXIS",
-                receta.recetaArmazones!.oiAxis.toString(),
-              ),
-              buildDetailRow(
-                "OI ADD",
-                receta.recetaArmazones!.oiAdd.toString(),
-              ),
-              buildDetailRow("DIP", receta.recetaArmazones!.dip.toString()),
-            ],
-            if (receta.recetaContacto != null) ...[
-              const SizedBox(height: 16),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Receta de Contacto",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                buildDetailRow(
+                  "Fecha de Receta",
+                  formatFecha(receta.fecha.toString()),
                 ),
-              ),
-              buildDetailRow("OD SPH", receta.recetaContacto!.odSph.toString()),
-              buildDetailRow("OD CYL", receta.recetaContacto!.odCyl.toString()),
-              buildDetailRow(
-                "OD AXIS",
-                receta.recetaContacto!.odAxis.toString(),
-              ),
-              buildDetailRow("OD ADD", receta.recetaContacto!.odAdd.toString()),
-              buildDetailRow("OD BC", receta.recetaContacto!.odBc.toString()),
-              buildDetailRow("OD DIA", receta.recetaContacto!.odDia.toString()),
-              buildDetailRow("OI SPH", receta.recetaContacto!.oiSph.toString()),
-              buildDetailRow("OI CYL", receta.recetaContacto!.oiCyl.toString()),
-              buildDetailRow(
-                "OI AXIS",
-                receta.recetaContacto!.oiAxis.toString(),
-              ),
-              buildDetailRow("OI ADD", receta.recetaContacto!.oiAdd.toString()),
-              buildDetailRow("OI BC", receta.recetaContacto!.oiBc.toString()),
-              buildDetailRow("OI DIA", receta.recetaContacto!.oiDia.toString()),
-              buildDetailRow(
-                "Marca Lente",
-                receta.recetaContacto!.marcaLente ?? "N/A",
-              ),
-              buildDetailRow(
-                "Tiempo de Uso",
-                receta.recetaContacto!.tiempoUso ?? "N/A",
-              ),
-            ],
-          ],
+                if (receta.recetaArmazones != null) ...[
+                  const SizedBox(height: 16),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Receta de Armazón",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  buildDetailRow(
+                    "OD SPH",
+                    receta.recetaArmazones!.odSph.toString(),
+                  ),
+                  buildDetailRow(
+                    "OD CYL",
+                    receta.recetaArmazones!.odCyl.toString(),
+                  ),
+                  buildDetailRow(
+                    "OD AXIS",
+                    receta.recetaArmazones!.odAxis.toString(),
+                  ),
+                  buildDetailRow(
+                    "OD ADD",
+                    receta.recetaArmazones!.odAdd.toString(),
+                  ),
+                  buildDetailRow(
+                    "OI SPH",
+                    receta.recetaArmazones!.oiSph.toString(),
+                  ),
+                  buildDetailRow(
+                    "OI CYL",
+                    receta.recetaArmazones!.oiCyl.toString(),
+                  ),
+                  buildDetailRow(
+                    "OI AXIS",
+                    receta.recetaArmazones!.oiAxis.toString(),
+                  ),
+                  buildDetailRow(
+                    "OI ADD",
+                    receta.recetaArmazones!.oiAdd.toString(),
+                  ),
+                  buildDetailRow("DIP", receta.recetaArmazones!.dip.toString()),
+                ],
+                if (receta.recetaContacto != null) ...[
+                  const SizedBox(height: 16),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Receta de Contacto",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  buildDetailRow(
+                    "OD SPH",
+                    receta.recetaContacto!.odSph.toString(),
+                  ),
+                  buildDetailRow(
+                    "OD CYL",
+                    receta.recetaContacto!.odCyl.toString(),
+                  ),
+                  buildDetailRow(
+                    "OD AXIS",
+                    receta.recetaContacto!.odAxis.toString(),
+                  ),
+                  buildDetailRow(
+                    "OD ADD",
+                    receta.recetaContacto!.odAdd.toString(),
+                  ),
+                  buildDetailRow(
+                    "OD BC",
+                    receta.recetaContacto!.odBc.toString(),
+                  ),
+                  buildDetailRow(
+                    "OD DIA",
+                    receta.recetaContacto!.odDia.toString(),
+                  ),
+                  buildDetailRow(
+                    "OI SPH",
+                    receta.recetaContacto!.oiSph.toString(),
+                  ),
+                  buildDetailRow(
+                    "OI CYL",
+                    receta.recetaContacto!.oiCyl.toString(),
+                  ),
+                  buildDetailRow(
+                    "OI AXIS",
+                    receta.recetaContacto!.oiAxis.toString(),
+                  ),
+                  buildDetailRow(
+                    "OI ADD",
+                    receta.recetaContacto!.oiAdd.toString(),
+                  ),
+                  buildDetailRow(
+                    "OI BC",
+                    receta.recetaContacto!.oiBc.toString(),
+                  ),
+                  buildDetailRow(
+                    "OI DIA",
+                    receta.recetaContacto!.oiDia.toString(),
+                  ),
+                  buildDetailRow(
+                    "Marca Lente",
+                    receta.recetaContacto!.marcaLente ?? "N/A",
+                  ),
+                  buildDetailRow(
+                    "Tiempo de Uso",
+                    receta.recetaContacto!.tiempoUso ?? "N/A",
+                  ),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );

@@ -14,6 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _obscurePassword = true;
   String? _errorMessage;
 
   void _login() async {
@@ -61,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 0, 0, 0), 
+                    color: Color.fromARGB(255, 0, 0, 0),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -84,9 +85,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _buildInputField(Icons.person, "Usuario", _usernameController, false),
+                      _buildInputField(
+                        Icons.person,
+                        "Usuario",
+                        _usernameController,
+                        false,
+                      ),
                       const SizedBox(height: 15),
-                      _buildInputField(Icons.lock, "Contraseña", _passwordController, true),
+                      _buildInputField(
+                        Icons.lock,
+                        "Contraseña",
+                        _passwordController,
+                        true,
+                      ),
                       const SizedBox(height: 20),
 
                       // Error message
@@ -102,19 +113,29 @@ class _LoginScreenState extends State<LoginScreen> {
                       _isLoading
                           ? const CircularProgressIndicator()
                           : SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: _login,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF16548D), // Celeste
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: _login,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(
+                                  0xFF16548D,
+                                ), // Celeste
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
                                 ),
-                                child: const Text("Ingresar", style: TextStyle(fontSize: 16, color: Colors.white)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                              child: const Text(
+                                "Ingresar",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
+                          ),
                     ],
                   ),
                 ),
@@ -128,10 +149,17 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // Widget para los input fields
-  Widget _buildInputField(IconData icon, String hint, TextEditingController controller, bool isPassword) {
+  Widget _buildInputField(
+    IconData icon,
+    String hint,
+    TextEditingController controller,
+    bool isPassword,
+  ) {
     return TextField(
       controller: controller,
-      obscureText: isPassword,
+      obscureText: isPassword ? _obscurePassword : false,
+      onSubmitted:
+          isPassword ? (_) => _login() : null, // Ejecutar login con Enter
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: Icon(icon, color: const Color(0xFF16548D)),
@@ -142,6 +170,20 @@ class _LoginScreenState extends State<LoginScreen> {
           borderSide: BorderSide.none,
         ),
         contentPadding: const EdgeInsets.symmetric(vertical: 14),
+        suffixIcon:
+            isPassword
+                ? IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                    color: const Color(0xFF16548D),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                )
+                : null,
       ),
     );
   }

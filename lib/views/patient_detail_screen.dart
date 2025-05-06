@@ -29,12 +29,20 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
   late Future<List<ConsultaCompleta>> _futureArmazon;
   late Future<List<ConsultaCompleta>> _futureContacto;
 
+  final ScrollController _horizontalScrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     _futurePatient = PatientService.getPatientById(widget.pacienteId);
     _futureArmazon = ConsultaService.getConsultasArmazon(widget.pacienteId);
     _futureContacto = ConsultaService.getConsultasContacto(widget.pacienteId);
+  }
+
+  @override
+  void dispose() {
+    _horizontalScrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -69,7 +77,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                 buildActionButtons(),
                 const SizedBox(height: 30),
                 const Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: Alignment.center,
                   child: Text(
                     "Consultas Realizadas",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -139,32 +147,42 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
   }
 
   Widget buildPatientCard(Patient patient) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const Text(
-              "Información del Paciente",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                const Text(
+                  "Información del Paciente",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                buildDetailRow("Cédula", patient.cedula),
+                buildDetailRow("Nombre", patient.nombres),
+                buildDetailRow("Apellido", patient.apellidos),
+                buildDetailRow(
+                  "Fecha de Nacimiento",
+                  formatFecha(patient.fechaNacimiento.toString()),
+                ),
+                buildDetailRow("Ocupación", patient.ocupacion),
+                buildDetailRow("Teléfono", patient.telefono),
+                buildDetailRow("Correo", patient.correo),
+                buildDetailRow("Dirección", patient.direccion),
+                buildDetailRow("Antecedentes", patient.antecedentes),
+                buildDetailRow(
+                  "Condiciones Médicas",
+                  patient.condicionesMedicas,
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            buildDetailRow("Cédula", patient.cedula),
-            buildDetailRow("Nombre", patient.nombres),
-            buildDetailRow("Apellido", patient.apellidos),
-            buildDetailRow(
-              "Fecha de Nacimiento",
-              formatFecha(patient.fechaNacimiento.toString()),
-            ),
-            buildDetailRow("Ocupación", patient.ocupacion),
-            buildDetailRow("Teléfono", patient.telefono),
-            buildDetailRow("Correo", patient.correo),
-            buildDetailRow("Dirección", patient.direccion),
-            buildDetailRow("Antecedentes", patient.antecedentes),
-            buildDetailRow("Condiciones Médicas", patient.condicionesMedicas),
-          ],
+          ),
         ),
       ),
     );
@@ -208,119 +226,159 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
   }
 
   Widget buildExpansionArmazon(List<Map<String, dynamic>> consultas) {
-    return ExpansionTile(
-      title: const Text("Consultas de Lentes de Armazón"),
-      leading: const Icon(Icons.remove_red_eye),
-      children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            showCheckboxColumn: false,
-            columns: const [
-              DataColumn(label: Text('Fecha')),
-              DataColumn(label: Text('OD (SPH/CYL/Eje/ADD)')),
-              DataColumn(label: Text('OI (SPH/CYL/Eje/ADD)')),
-              DataColumn(label: Text('Observaciones')),
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: Card(
+          elevation: 2,
+          margin: const EdgeInsets.symmetric(vertical: 12),
+          child: ExpansionTile(
+            title: const Text("Consultas de Lentes de Armazón"),
+            leading: const Icon(Icons.remove_red_eye),
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Scrollbar(
+                  thumbVisibility: true, // visible scrollbar en web
+                  controller: _horizontalScrollController,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: _horizontalScrollController,
+                    child: IntrinsicWidth(
+                      child: DataTable(
+                        showCheckboxColumn: false,
+                        columns: const [
+                          DataColumn(label: Text('Fecha')),
+                          DataColumn(label: Text('OD (SPH/CYL/EJE/ADD)')),
+                          DataColumn(label: Text('OI (SPH/CYL/EJE/ADD)')),
+                          DataColumn(label: Text('Observaciones')),
+                        ],
+                        rows:
+                            consultas.map((consulta) {
+                              final receta =
+                                  consulta['receta']?['receta_armazones'];
+                              return DataRow(
+                                onSelectChanged: (_) {
+                                  final idConsulta = consulta['IDconsulta'];
+                                  context.push(
+                                    '/consulta_detalle/${widget.pacienteId}/$idConsulta',
+                                  );
+                                },
+                                cells: [
+                                  DataCell(
+                                    Text(formatFecha(consulta['FConsulta'])),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      receta != null
+                                          ? '${receta['OD_SPH']} / ${receta['OD_CYL']} / ${receta['OD_AXIS']} / ${receta['OD_ADD']}'
+                                          : 'No disponible',
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      receta != null
+                                          ? '${receta['OI_SPH']} / ${receta['OI_CYL']} / ${receta['OI_AXIS']} / ${receta['OI_ADD']}'
+                                          : 'No disponible',
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      consulta['Observaciones'] ??
+                                          'Sin observaciones',
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
-            rows:
-                consultas.map((consulta) {
-                  final receta =
-                      consulta['receta']?['receta_armazones']; // Cambio aquí
-
-                  return DataRow(
-                    onSelectChanged: (_) {
-                      final idConsulta = consulta['IDconsulta'];
-                      context.push(
-                        '/consulta_detalle/${widget.pacienteId}/$idConsulta',
-                      );
-                    },
-                    cells: [
-                      DataCell(Text(formatFecha(consulta['FConsulta']))),
-                      DataCell(
-                        Text(
-                          receta != null
-                              ? '${receta['OD_SPH']} / ${receta['OD_CYL']} / ${receta['OD_AXIS']} / ${receta['OD_ADD']}'
-                              : 'No disponible',
-                        ),
-                      ),
-                      DataCell(
-                        Text(
-                          receta != null
-                              ? '${receta['OI_SPH']} / ${receta['OI_CYL']} / ${receta['OI_AXIS']} / ${receta['OI_ADD']}'
-                              : 'No disponible',
-                        ),
-                      ),
-                      DataCell(
-                        Text(consulta['Observaciones'] ?? 'Sin observaciones'),
-                      ),
-                    ],
-                  );
-                }).toList(),
           ),
         ),
-      ],
+      ),
     );
   }
 
-  Widget buildExpansionContacto(List<Map<String, dynamic>> consultas) {
-    return ExpansionTile(
-      title: const Text("Consultas de Lentes de Contacto"),
-      leading: const Icon(Icons.visibility),
-      children: [
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            showCheckboxColumn: false,
-            columns: const [
-              DataColumn(label: Text('Fecha')),
-              DataColumn(label: Text('OD (SPH/CYL/Eje/ADD/BC/DIA)')),
-              DataColumn(label: Text('OI (SPH/CYL/Eje/ADD/BC/DIA)')),
-              DataColumn(label: Text('Marca')),
-              DataColumn(label: Text('Tiempo de Uso')),
-            ],
-            rows:
-                consultas.map((consulta) {
-                  final receta = consulta['receta']?['receta_contacto'];
 
-                  return DataRow(
-                    onSelectChanged: (_) {
-                      final idConsulta = consulta['IDconsulta'];
-                      context.push(
-                        '/consulta_detalle/${widget.pacienteId}/$idConsulta',
-                      );
-                    },
-                    cells: [
-                      DataCell(Text(formatFecha(consulta['FConsulta']))),
-                      DataCell(
-                        Text(
-                          receta != null
-                              ? '${receta['OD_SPH']} / ${receta['OD_CYL']} / ${receta['OD_AXIS']} / ${receta['OD_ADD']} / ${receta['OD_BC']}  / ${receta['OD_DIA']}'
-                              : 'No disponible',
+
+Widget buildExpansionContacto(List<Map<String, dynamic>> consultas) {
+  return Center(
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 600),
+      child: Card(
+        elevation: 2,
+        margin: const EdgeInsets.symmetric(vertical: 12),
+        child: ExpansionTile(
+          title: const Text("Consultas de Lentes de Contacto"),
+          leading: const Icon(Icons.visibility),
+          children: [
+            Scrollbar(
+              thumbVisibility: true,
+              controller: _horizontalScrollController,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: _horizontalScrollController,
+                child: DataTable(
+                  showCheckboxColumn: false,
+                  columns: const [
+                    DataColumn(label: Text('Fecha')),
+                    DataColumn(label: Text('OD (SPH/CYL/EJE/ADD/BC/DIA)')),
+                    DataColumn(label: Text('OI (SPH/CYL/EJE/ADD/BC/DIA)')),
+                    DataColumn(label: Text('Marca')),
+                    DataColumn(label: Text('Tiempo de Uso')),
+                  ],
+                  rows: consultas.map((consulta) {
+                    final receta = consulta['receta']?['receta_contacto'];
+                    return DataRow(
+                      onSelectChanged: (_) {
+                        final idConsulta = consulta['IDconsulta'];
+                        context.push(
+                          '/consulta_detalle/${widget.pacienteId}/$idConsulta',
+                        );
+                      },
+                      cells: [
+                        DataCell(Text(formatFecha(consulta['FConsulta']))),
+                        DataCell(
+                          Text(
+                            receta != null
+                                ? '${receta['OD_SPH']} / ${receta['OD_CYL']} / ${receta['OD_AXIS']} / ${receta['OD_ADD']} / ${receta['OD_BC']} / ${receta['OD_DIA']}'
+                                : 'No disponible',
+                          ),
                         ),
-                      ),
-                      DataCell(
-                        Text(
-                          receta != null
-                              ? '${receta['OI_SPH']} / ${receta['OI_CYL']} / ${receta['OI_AXIS']} / ${receta['OI_ADD']} / ${receta['OI_BC']} / ${receta['OI_DIA']}'
-                              : 'No disponible',
+                        DataCell(
+                          Text(
+                            receta != null
+                                ? '${receta['OI_SPH']} / ${receta['OI_CYL']} / ${receta['OI_AXIS']} / ${receta['OI_ADD']} / ${receta['OI_BC']} / ${receta['OI_DIA']}'
+                                : 'No disponible',
+                          ),
                         ),
-                      ),
-                      DataCell(
-                        Text(
-                          receta != null
-                              ? receta['MarcaLente'] ?? 'No disponible'
-                              : 'No disponible',
+                        DataCell(
+                          Text(
+                            receta != null
+                                ? receta['MarcaLente'] ?? 'No disponible'
+                                : 'No disponible',
+                          ),
                         ),
-                      ),
-                      DataCell(Text(receta['TiempoUso'] ?? 'No definido')),
-                    ],
-                  );
-                }).toList(),
-          ),
+                        DataCell(
+                          Text(receta?['TiempoUso'] ?? 'No definido'),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
-    );
-  }
+      ),
+    ),
+  );
+}
+
 
   Widget buildDetailRow(String label, String value) {
     return Padding(
