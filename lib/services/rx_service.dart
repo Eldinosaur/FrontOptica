@@ -101,4 +101,7 @@ class ConsultaService {
       rethrow;
     }
   }
+
+  // Guardar consultas
+  
 }

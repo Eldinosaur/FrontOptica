@@ -204,14 +204,14 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
           label: "Consulta Lentes de Armazón",
           icon: Icons.remove_red_eye,
           onPressed: () {
-            // Acción consultar lentes de armazón
+            context.push('/registrar_consulta/armazon/${widget.pacienteId}');
           },
         ),
         PrimaryButton(
           label: "Consulta Lentes de Contacto",
           icon: Icons.visibility,
           onPressed: () {
-            // Acción consultar lentes de contacto
+            context.push('/registrar_consulta/armazon/${widget.pacienteId}');
           },
         ),
       ],

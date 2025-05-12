@@ -69,7 +69,7 @@ class _EditPatientScreenState extends State<EditPatientScreen> {
     "Cedula": _cedulaController.text.trim(),
     "Nombre": _nombreController.text.trim(),
     "Apellido": _apellidoController.text.trim(),
-    "FNacimiento": DateFormat('yyyy-MM-dd').format(_selectedDate!),
+    "FNacimiento": DateFormat('dd-MM-yyyy').format(_selectedDate!),
     "Ocupacion": _ocupacionController.text.trim(),
     "Telefono": _telefonoController.text.trim(),
     "Correo": _correoController.text.trim(),
@@ -158,7 +158,7 @@ class _EditPatientScreenState extends State<EditPatientScreen> {
     if (picked != null) {
       setState(() {
         _selectedDate = picked;
-        _fnacimientoController.text = DateFormat('yyyy-MM-dd').format(picked);
+        _fnacimientoController.text = DateFormat('dd-MM-yyyy').format(picked);
       });
     }
   }
@@ -181,7 +181,13 @@ class _EditPatientScreenState extends State<EditPatientScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Editar Paciente')),
+      appBar: AppBar(
+        title: const Text('Editar Paciente'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/paciente/${widget.pacienteId}'),
+        ),
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16),

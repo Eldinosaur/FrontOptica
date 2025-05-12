@@ -128,7 +128,7 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
     if (picked != null) {
       setState(() {
         _selectedDate = picked;
-        _fnacimientoController.text = DateFormat('yyyy-MM-dd').format(picked);
+        _fnacimientoController.text = DateFormat('dd-MM-yyyy').format(picked);
       });
     }
   }
@@ -151,7 +151,13 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Agregar Paciente')),
+      appBar: AppBar(
+        title: const Text('Agregar Paciente'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/pacientes'),
+        ),
+        ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16),

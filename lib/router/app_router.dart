@@ -11,7 +11,11 @@ import '../views/edit_patient_screen.dart';
 import '../views/settings_screen.dart';
 import '../views/change_password_screen.dart';
 import '../views/rx_detail_screen.dart';
+import '../views/glasses_rx_screen.dart';
+import '../views/contact_rx_screen.dart';
+
 import '../shell/app_shell.dart';
+
 import '../services/auth_service.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -62,6 +66,20 @@ final GoRouter appRouter = GoRouter(
             final paciente = state.pathParameters['idPaciente']!;
             final consulta = state.pathParameters['idConsulta']!;
             return RxDetailScreen(pacienteId: paciente, consultaId: consulta);
+          },
+        ),
+        GoRoute(
+          path: '/registrar_consulta/armazon/:pacienteId',
+          builder: (context, state) {
+            final pacienteId = state.pathParameters['pacienteId']!;
+            return GlassesRxScreen(pacienteId: pacienteId);
+          },
+        ),
+        GoRoute(
+          path: '/registrar_consulta/contacto/:pacienteId',
+          builder: (context, state) {
+            final pacienteId = state.pathParameters['pacienteId']!;
+            return ContactRxScreen(pacienteId: pacienteId);
           },
         ),
       ],
