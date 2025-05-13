@@ -69,7 +69,7 @@ class _EditPatientScreenState extends State<EditPatientScreen> {
     "Cedula": _cedulaController.text.trim(),
     "Nombre": _nombreController.text.trim(),
     "Apellido": _apellidoController.text.trim(),
-    "FNacimiento": DateFormat('dd-MM-yyyy').format(_selectedDate!),
+    "FNacimiento": DateFormat('yyyy-MM-dd').format(_selectedDate!),
     "Ocupacion": _ocupacionController.text.trim(),
     "Telefono": _telefonoController.text.trim(),
     "Correo": _correoController.text.trim(),

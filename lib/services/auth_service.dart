@@ -4,7 +4,7 @@ import '../utils/secure_storage_service.dart';
 import '../models/usuario_model.dart';
 
 class AuthService extends ChangeNotifier {
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'https://eyemedix-api.onrender.com/api')); // Ruta del servicio local
+  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://10.79.7.184:8000/api')); // Ruta del servicio local
   // https://eyemedix-api.onrender.com/api // Ruta del servicio en línea, si se necesita cambiar
 
   bool _isAuthenticated = false;
@@ -12,6 +12,7 @@ class AuthService extends ChangeNotifier {
 
   bool get isAuthenticated => _isAuthenticated;
   Usuario? get usuarioActual => _usuarioActual;
+  int? get userId => _usuarioActual?.id;
 
   Future<bool> login(String username, String password) async {
     try {

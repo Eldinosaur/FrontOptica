@@ -211,7 +211,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
           label: "Consulta Lentes de Contacto",
           icon: Icons.visibility,
           onPressed: () {
-            context.push('/registrar_consulta/armazon/${widget.pacienteId}');
+            context.push('/registrar_consulta/contacto/${widget.pacienteId}');
           },
         ),
       ],
@@ -379,8 +379,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 150,
+          Expanded(
             child: Text(
               "$label:",
               style: const TextStyle(fontWeight: FontWeight.bold),

@@ -4,7 +4,7 @@ import '../utils/secure_storage_service.dart';
 
 class ConsultaService {
   static final Dio _dio = Dio(
-    BaseOptions(baseUrl: 'https://eyemedix-api.onrender.com/api'), // ajusta IP si cambia
+    BaseOptions(baseUrl: 'http://10.79.7.184:8000/api'), // ajusta IP si cambia
   );
 
   static Future<String?> _getToken() async {
@@ -12,7 +12,9 @@ class ConsultaService {
   }
 
   // Obtener todas las consultas de un paciente
-  static Future<List<ConsultaCompleta>> getConsultasPorPaciente(String pacienteId) async {
+  static Future<List<ConsultaCompleta>> getConsultasPorPaciente(
+    String pacienteId,
+  ) async {
     try {
       final token = await _getToken();
 
@@ -34,7 +36,9 @@ class ConsultaService {
   }
 
   // Obtener consultas de tipo armazón
-  static Future<List<ConsultaCompleta>> getConsultasArmazon(String pacienteId) async {
+  static Future<List<ConsultaCompleta>> getConsultasArmazon(
+    String pacienteId,
+  ) async {
     try {
       final token = await _getToken();
 
@@ -79,9 +83,10 @@ class ConsultaService {
     }
   }
 
-
   // Obtener consultas de tipo contacto
-  static Future<List<ConsultaCompleta>> getConsultasContacto(String pacienteId) async {
+  static Future<List<ConsultaCompleta>> getConsultasContacto(
+    String pacienteId,
+  ) async {
     try {
       final token = await _getToken();
 
@@ -103,5 +108,33 @@ class ConsultaService {
   }
 
   // Guardar consultas
-  
+  static Future<bool> registrarConsultaCompleta(
+    Map<String, dynamic> payload,
+  ) async {
+    try {
+      final token = await _getToken();
+
+      final response = await _dio.post(
+        '/consulta_completa/', 
+        data: payload,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      if (response.statusCode == 201) {
+        //print('Consulta registrada correctamente.');
+        return true;
+      } else {
+        print('Error al registrar consulta: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Error en registrarConsultaCompleta: $e');
+      return false;
+    }
+  }
 }

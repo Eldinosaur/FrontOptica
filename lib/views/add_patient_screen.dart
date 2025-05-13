@@ -128,7 +128,7 @@ class _AddPatientScreenState extends State<AddPatientScreen> {
     if (picked != null) {
       setState(() {
         _selectedDate = picked;
-        _fnacimientoController.text = DateFormat('dd-MM-yyyy').format(picked);
+        _fnacimientoController.text = DateFormat('yyyy-MM-dd').format(picked);
       });
     }
   }
