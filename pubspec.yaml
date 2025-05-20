@@ -41,6 +41,7 @@ dependencies:
   dio: ^5.4.0
   flutter_secure_storage: ^9.0.0
   intl: ^0.20.2
+  flutter_svg: ^2.0.7
 
 dev_dependencies:
   flutter_test:
@@ -59,14 +60,14 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/logooptica.png"
+  image_path: "assets/logooptica.svg"
 
 # The following section is specific to Flutter packages.
 flutter:
   assets:
     - "assets/check.json"
     - "assets/fail.json"
-    - "assets/logooptica.png"
+    - "assets/logooptica.svg"
     - "assets/bg.jpg"
     - "assets/user.png"
 

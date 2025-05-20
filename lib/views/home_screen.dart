@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -14,8 +16,8 @@ class HomeScreen extends StatelessWidget {
           maxWidth: screenWidth * 0.9, // Hasta el 90% del ancho de pantalla
           maxHeight: screenHeight * 0.5, // Hasta el 50% del alto de pantalla
         ),
-        child: Image.asset(
-          'assets/logooptica.png',
+        child: SvgPicture.asset(
+          'assets/logooptica.svg',
           fit: BoxFit.contain, // Mantiene el aspecto original sin recortes
         ),
       ),
