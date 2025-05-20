@@ -9,7 +9,7 @@ const RESOURCES = {"assets/AssetManifest.bin": "2344842bc0a22be3f5a672a427f62468
 "assets/assets/bg.jpg": "92b426600c7773fbe47f2dc9a825617f",
 "assets/assets/check.json": "2df18f6b8623f0efd69c8f152518455a",
 "assets/assets/fail.json": "8fa1a4192917f0636534f90a150338d5",
-"assets/assets/logooptica.svg": "5884d25f1287470a3c552246246cc766",
+"assets/assets/logooptica.svg": "31b154215dc7754d531dbf69e9b1b9f8",
 "assets/assets/user.png": "73ca53ee8afa2303c684fc3f3c37a1da",
 "assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
 "assets/fonts/MaterialIcons-Regular.otf": "63049fbb70f556d784be44fddbb9a309",
@@ -29,7 +29,7 @@ const RESOURCES = {"assets/AssetManifest.bin": "2344842bc0a22be3f5a672a427f62468
 "canvaskit/skwasm_st.js.symbols": "c7e7aac7cd8b612defd62b43e3050bdd",
 "canvaskit/skwasm_st.wasm": "56c3973560dfcbf28ce47cebe40f3206",
 "flutter.js": "76f08d47ff9f5715220992f993002504",
-"flutter_bootstrap.js": "889860b260071f0654cebb2941a777bf",
+"flutter_bootstrap.js": "f89868dc8c410b57dc012ddd3bb94885",
 "iconooptica.svg": "921b0bab5c42aadbc01b6d2cf5d22d88",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
 "icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
@@ -37,7 +37,7 @@ const RESOURCES = {"assets/AssetManifest.bin": "2344842bc0a22be3f5a672a427f62468
 "icons/Icon-maskable-512.png": "301a7604d45b3e739efc881eb04896ea",
 "index.html": "99ad25ceb678806ff400764e70e5be7b",
 "/": "99ad25ceb678806ff400764e70e5be7b",
-"main.dart.js": "af0f0ae60d7731072553a2a83a2f02d9",
+"main.dart.js": "b0e418f3efbcd6198008c7058491c2f6",
 "manifest.json": "a6bb16656da8c6bccb4ff27876c91e7f",
 "version.json": "e0e6fb68b842c03339be4353b5c38bf2"};
 // The application shell files that are downloaded before a service worker can
