@@ -1,3 +1,4 @@
+import 'package:eye_medix/views/acuty_report_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -80,6 +81,13 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state) {
             final pacienteId = state.pathParameters['pacienteId']!;
             return ContactRxScreen(pacienteId: pacienteId);
+          },
+        ),
+        GoRoute(
+          path: '/evolucion/:pacienteId',
+          builder: (context, state) {
+            final pacienteId = state.pathParameters['pacienteId']!;
+            return VisualEvolutionScreen(pacienteId: pacienteId);
           },
         ),
       ],

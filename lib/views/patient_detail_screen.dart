@@ -216,6 +216,13 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
             context.push('/registrar_consulta/contacto/${widget.pacienteId}');
           },
         ),
+        PrimaryButton(
+          label: "Reporte de Evolucion Visual",
+          icon: Icons.auto_graph,
+          onPressed: () {
+            context.push('/evolucion/${widget.pacienteId}');
+          },
+        ),
       ],
     );
   }

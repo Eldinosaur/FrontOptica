@@ -4,7 +4,7 @@ import '../utils/secure_storage_service.dart';
 
 class ConsultaService {
   static final Dio _dio = Dio(
-    BaseOptions(baseUrl: 'http://192.168.100.3:8000/api'), 
+    BaseOptions(baseUrl: 'http://192.168.100.2:8000/api'), 
   );
 
   static Future<String?> _getToken() async {
