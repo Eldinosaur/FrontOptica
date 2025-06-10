@@ -14,16 +14,33 @@ class ChangePasswordScreen extends StatefulWidget {
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _currentPasswordController =
-      TextEditingController();
+  final TextEditingController _currentPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  String? _errorMessage;
+
+  // Método para detectar inyección SQL
+  bool _containsSQLInjection(String input) {
+    final pattern = RegExp(
+      r"(?:')|(?:--)|(/\*(?:.|[\n\r])*?\*/)|"
+      r"\b(ALTER|CREATE|DELETE|DROP|EXEC(UTE)?|INSERT|MERGE|SELECT|UPDATE|UNION|USE)\b",
+      caseSensitive: false,
+    );
+    return pattern.hasMatch(input);
+  }
 
   void _submit() async {
     if (_formKey.currentState!.validate()) {
       String currentPassword = _currentPasswordController.text;
       String newPassword = _newPasswordController.text;
+
+      // Validación contra inyección SQL
+      if (_containsSQLInjection(currentPassword) || _containsSQLInjection(newPassword)) {
+        setState(() {
+          _errorMessage = "Entrada inválida detectada. Revise su contraseña.";
+        });
+        return;
+      }
 
       bool success = await context.read<AuthService>().cambiarClave(
         currentPassword,
@@ -34,37 +51,41 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
       await showDialog(
         context: context,
-        builder:
-            (context) => AlertDialog(
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Lottie.asset(
-                    success ? 'assets/check.json' : 'assets/fail.json',
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    success
-                        ? 'La contraseña se cambió correctamente.'
-                        : 'Hubo un error al cambiar la contraseña.',
-                  ),
-                ],
+        builder: (context) => AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Lottie.asset(
+                success ? 'assets/check.json' : 'assets/fail.json',
+                width: 100,
+                height: 100,
+                fit: BoxFit.cover,
               ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Cierra el AlertDialog
-                  },
-                  child: const Text('Aceptar'),
+              const SizedBox(height: 10),
+              Text(
+                success
+                    ? 'La contraseña se cambió correctamente.'
+                    : 'Hubo un error al cambiar la contraseña.',
+              ),
+              if (_errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    _errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ),
-              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Aceptar'),
             ),
+          ],
+        ),
       );
 
-      // Redirige si la operación fue exitosa, incluso si cerró tocando fuera
       if (success && context.mounted) {
         context.go('/ajustes');
       }
@@ -121,6 +142,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             hint: 'Confirmar Contraseña',
                             controller: _confirmPasswordController,
                             validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Este campo es obligatorio';
+                              }
                               if (value != _newPasswordController.text) {
                                 return 'Las contraseñas no coinciden';
                               }
@@ -155,22 +179,28 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     return TextFormField(
       controller: controller,
       obscureText: true,
-      validator:
-          validator ??
-          (value) =>
-              (value == null || value.isEmpty)
-                  ? 'Este campo es obligatorio'
-                  : null,
+      validator: validator ??
+          (value) {
+            if (value == null || value.isEmpty) {
+              return 'Este campo es obligatorio';
+            }
+            if (_containsSQLInjection(value)) {
+              return 'Entrada inválida detectada';
+            }
+            return null;
+          },
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: Icon(icon, color: const Color(0xFF16548D)),
         focusedBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(5)),
-          borderSide: BorderSide(color: Color(0xFF16548D), width: 2),
+          borderSide: BorderSide(color: Color(0xFF16548D)),
         ),
-        border: const OutlineInputBorder(
+        enabledBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(5)),
+          borderSide: BorderSide(color: Colors.grey),
         ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 14),
       ),
     );
   }

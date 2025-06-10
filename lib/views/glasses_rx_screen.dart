@@ -55,118 +55,6 @@ class _GlassesRxScreenState extends State<GlassesRxScreen> {
     '20/200': 0.1,
   };
 
-  void _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-
-      final authService = Provider.of<AuthService>(context, listen: false);
-      final userId = authService.userId;
-
-      if (userId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error: Usuario no identificado')),
-        );
-        return;
-      }
-
-      final payload = {
-        "consulta": {
-          "IDpaciente": widget.pacienteId,
-          "IDusuario": userId,
-          "FConsulta": DateFormat('yyyy-MM-dd').format(_today),
-          "Observaciones": _observacionesController.text.trim(),
-          "Motivo": _motivoController.text.trim(),
-        },
-        "receta": {
-          "TipoLente": 1,
-          "Fecha": DateFormat('yyyy-MM-dd').format(_today),
-        },
-        "receta_armazones": {
-          "OD_SPH": double.tryParse(_odSphController.text) ?? 0,
-          "OD_CYL": double.tryParse(_odCylController.text) ?? 0,
-          "OD_AXIS": double.tryParse(_odAxisController.text) ?? 0,
-          "OD_ADD": double.tryParse(_odAddController.text) ?? 0,
-          "OI_SPH": double.tryParse(_oiSphController.text) ?? 0,
-          "OI_CYL": double.tryParse(_oiCylController.text) ?? 0,
-          "OI_AXIS": double.tryParse(_oiAxisController.text) ?? 0,
-          "OI_ADD": double.tryParse(_oiAddController.text) ?? 0,
-          "DIP": double.tryParse(_dipController.text) ?? 0,
-        },
-        "receta_contacto": null,
-        "evolucion": {
-          "OD": snellenToDecimal[_selectedODVision] ?? 0,
-          "OI": snellenToDecimal[_selectedOIVision] ?? 0,
-          "Fecha": DateFormat('yyyy-MM-dd').format(_today),
-        },
-      };
-
-      try {
-        await ConsultaService.registrarConsultaCompleta(payload);
-
-        if (context.mounted) {
-          final result = await showDialog<bool>(
-            context: context,
-            barrierDismissible: true,
-            builder:
-                (_) => AlertDialog(
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Lottie.asset(
-                        'assets/check.json',
-                        width: 100,
-                        height: 100,
-                      ),
-                      const SizedBox(height: 10),
-                      const Text('Receta registrada correctamente.'),
-                    ],
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context, rootNavigator: true).pop(true);
-                      },
-                      child: const Text('Aceptar'),
-                    ),
-                  ],
-                ),
-          );
-
-          if (result != false) {
-            context.pushReplacement('/paciente/${widget.pacienteId}');
-          }
-        }
-      } catch (e) {
-        if (context.mounted) {
-          await showDialog<bool>(
-            context: context,
-            barrierDismissible: true,
-            builder:
-                (_) => AlertDialog(
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Lottie.asset('assets/fail.json', width: 100, height: 100),
-                      const SizedBox(height: 10),
-                      Text('Ocurrió un error: $e'),
-                    ],
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed:
-                          () => Navigator.of(
-                            context,
-                            rootNavigator: true,
-                          ).pop(true),
-                      child: const Text('Aceptar'),
-                    ),
-                  ],
-                ),
-          );
-        }
-      }
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -182,14 +70,104 @@ class _GlassesRxScreenState extends State<GlassesRxScreen> {
     _odCylController.dispose();
     _odAxisController.dispose();
     _odAddController.dispose();
-
     _oiSphController.dispose();
     _oiCylController.dispose();
     _oiAxisController.dispose();
     _oiAddController.dispose();
-    
     _dipController.dispose();
     super.dispose();
+  }
+
+  Future<void> _submitForm() async {
+    if (_formKey.currentState?.validate() != true) return;
+
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final userId = authService.userId;
+
+    if (userId == null) {
+      _showSnackBar('Error: Usuario no identificado');
+      return;
+    }
+
+    final payload = {
+      "consulta": {
+        "IDpaciente": widget.pacienteId,
+        "IDusuario": userId,
+        "FConsulta": _fechaController.text,
+        "Observaciones": _observacionesController.text.trim(),
+        "Motivo": _motivoController.text.trim(),
+      },
+      "receta": {
+        "TipoLente": 1, 
+        "Fecha": _fechaController.text
+        },
+      "receta_armazones": {
+        "OD_SPH": _parseDouble(_odSphController.text),
+        "OD_CYL": _parseDouble(_odCylController.text),
+        "OD_AXIS": _parseDouble(_odAxisController.text),
+        "OD_ADD": _parseDouble(_odAddController.text),
+        "OI_SPH": _parseDouble(_oiSphController.text),
+        "OI_CYL": _parseDouble(_oiCylController.text),
+        "OI_AXIS": _parseDouble(_oiAxisController.text),
+        "OI_ADD": _parseDouble(_oiAddController.text),
+        "DIP": _parseDouble(_dipController.text),
+      },
+      "receta_contacto": null,
+      "evolucion": {
+        "OD": snellenToDecimal[_selectedODVision] ?? 0,
+        "OI": snellenToDecimal[_selectedOIVision] ?? 0,
+        "Fecha": _fechaController.text,
+      },
+    };
+
+    try {
+      await ConsultaService.registrarConsultaCompleta(payload);
+      if (!context.mounted) return;
+      final success = await _showLottieDialog(
+        'check.json',
+        'Receta registrada correctamente.',
+      );
+      if (success) context.pushReplacement('/paciente/${widget.pacienteId}');
+    } catch (e) {
+      await _showLottieDialog('fail.json', 'Ocurrió un error: $e');
+    }
+  }
+
+  double _parseDouble(String value) => double.tryParse(value) ?? 0;
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<bool> _showLottieDialog(String asset, String message) async {
+    return await showDialog<bool>(
+          context: context,
+          barrierDismissible: true,
+          builder:
+              (_) => AlertDialog(
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Lottie.asset('assets/$asset', width: 100, height: 100),
+                    const SizedBox(height: 10),
+                    Text(message),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed:
+                        () => Navigator.of(
+                          context,
+                          rootNavigator: true,
+                        ).pop(true),
+                    child: const Text('Aceptar'),
+                  ),
+                ],
+              ),
+        ) ??
+        false;
   }
 
   @override
@@ -209,34 +187,26 @@ class _GlassesRxScreenState extends State<GlassesRxScreen> {
                   _buildDatePickerField("Fecha de Consulta", _fechaController),
                   _buildTextField("Motivo de la consulta", _motivoController),
                   _buildTextField("Observaciones", _observacionesController),
-                  const Divider(height: 30),
-                  const Text(
+                  const SizedBox(height: 20),
+                  _buildEyeCard(
                     "Ojo Derecho",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    _odSphController,
+                    _odCylController,
+                    _odAxisController,
+                    _odAddController,
+                    _selectedODVision,
+                    (val) => setState(() => _selectedODVision = val),
                   ),
-                  _buildTextField("SPH", _odSphController, isNumber: true),
-                  _buildTextField("CYL", _odCylController, isNumber: true),
-                  _buildTextField("AXIS", _odAxisController, isNumber: true),
-                  _buildTextField("ADD", _odAddController, isNumber: true),
-                  _buildDropdown("OD", _selectedODVision, (val) {
-                    setState(() => _selectedODVision = val);
-                  }),
-                  const Divider(height: 30),
-                  const Text(
+                  _buildEyeCard(
                     "Ojo Izquierdo",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    _oiSphController,
+                    _oiCylController,
+                    _oiAxisController,
+                    _oiAddController,
+                    _selectedOIVision,
+                    (val) => setState(() => _selectedOIVision = val),
                   ),
-                  _buildTextField("SPH", _oiSphController, isNumber: true),
-                  _buildTextField("CYL", _oiCylController, isNumber: true),
-                  _buildTextField("AXIS", _oiAxisController, isNumber: true),
-                  _buildTextField("ADD", _oiAddController, isNumber: true),
-                  _buildDropdown("OI", _selectedOIVision, (val) {
-                    setState(() => _selectedOIVision = val);
-                  }),
-                  
-                  const Divider(height: 30),
-                  _buildTextField("DIP", _dipController, isNumber: true),                 
-                  
+                  _buildTextField("DIP", _dipController, isNumber: true),
                   const SizedBox(height: 30),
                   PrimaryButton(
                     onPressed: _submitForm,
@@ -257,6 +227,7 @@ class _GlassesRxScreenState extends State<GlassesRxScreen> {
     String label,
     TextEditingController controller, {
     bool isNumber = false,
+    String? fieldType,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -270,9 +241,31 @@ class _GlassesRxScreenState extends State<GlassesRxScreen> {
           labelText: label,
           border: const OutlineInputBorder(),
         ),
-        validator:
-            (value) =>
-                value == null || value.isEmpty ? 'Campo requerido' : null,
+        validator: (value) {
+          if (value == null || value.trim().isEmpty) {
+            return 'Este campo es requerido';
+          }
+
+          if (isNumber) {
+            final num? parsed = num.tryParse(value);
+            if (parsed == null) {
+              return 'Ingrese un número valido';
+            }
+
+            if (fieldType == 'sph' || fieldType == 'cyl') {
+              if (parsed < -20 || parsed > 20) {
+                return 'El valor no es válido';
+              }
+            }
+
+            if (fieldType == 'add') {
+              if (parsed < 0 || parsed > 3) {
+                return 'El valor no es válido';
+              }
+            }
+          }
+          return null;
+        },
       ),
     );
   }
@@ -291,9 +284,9 @@ class _GlassesRxScreenState extends State<GlassesRxScreen> {
           border: const OutlineInputBorder(),
         ),
         items:
-            snellenToDecimal.keys.map((e) {
-              return DropdownMenuItem(value: e, child: Text(e));
-            }).toList(),
+            snellenToDecimal.keys
+                .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                .toList(),
         onChanged: onChanged,
         validator: (value) => value == null ? 'Selecciona una opción' : null,
       ),
@@ -325,9 +318,43 @@ class _GlassesRxScreenState extends State<GlassesRxScreen> {
             });
           }
         },
-        validator:
-            (value) =>
-                value == null || value.isEmpty ? 'Campo requerido' : null,
+      ),
+    );
+  }
+
+  Widget _buildEyeCard(
+    String title,
+    TextEditingController sph,
+    TextEditingController cyl,
+    TextEditingController axis,
+    TextEditingController add,
+    String? vision,
+    void Function(String?) onVisionChanged,
+  ) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            _buildTextField("SPH", sph, isNumber: true, fieldType: 'sph'),
+            _buildTextField("CYL", cyl, isNumber: true, fieldType: 'cyl'),
+            _buildTextField("AXIS", axis, isNumber: true, fieldType: 'axis'),
+            _buildTextField("ADD", add, isNumber: true, fieldType: 'add'),
+            _buildDropdown(
+              title.contains("Derecho") ? "OD" : "OI",
+              vision,
+              onVisionChanged,
+            ),
+          ],
+        ),
       ),
     );
   }

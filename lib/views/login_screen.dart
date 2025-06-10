@@ -4,7 +4,6 @@ import '../services/auth_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -19,10 +18,32 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   String? _errorMessage;
 
+  // Método para detectar inyección SQL
+  bool _containsSQLInjection(String input) {
+    final pattern = RegExp(
+      r"(?:')|(?:--)|(/\*(?:.|[\n\r])*?\*/)|"
+      r"\b(ALTER|CREATE|DELETE|DROP|EXEC(UTE)?|INSERT|MERGE|SELECT|UPDATE|UNION|USE)\b",
+      caseSensitive: false,
+    );
+    return pattern.hasMatch(input);
+  }
+
   void _login() async {
-    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+    final username = _usernameController.text;
+    final password = _passwordController.text;
+
+    if (username.isEmpty || password.isEmpty) {
       setState(() {
         _errorMessage = "Por favor ingrese usuario y contraseña";
+      });
+      return;
+    }
+
+    // Validación contra inyección SQL
+    if (_containsSQLInjection(username) || _containsSQLInjection(password)) {
+      setState(() {
+        _errorMessage =
+            "Entrada inválida detectada. Revise su usuario o contraseña.";
       });
       return;
     }
@@ -33,15 +54,12 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     final authService = Provider.of<AuthService>(context, listen: false);
-    bool success = await authService.login(
-      _usernameController.text,
-      _passwordController.text,
-    );
+    bool success = await authService.login(username, password);
 
     setState(() => _isLoading = false);
 
     if (success) {
-      context.go('/home'); // Ir a HomeScreen
+      context.go('/home');
     } else {
       setState(() => _errorMessage = "Usuario o contraseña incorrectos");
     }
@@ -59,9 +77,8 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SvgPicture.asset(
-                  'assets/logooptica.svg', 
-                  width: 500,
-                  height: 200,
+                  'assets/logooptica.svg',
+                  fit: BoxFit.contain,
                 ),
                 const SizedBox(height: 10),
                 const Text(
@@ -73,15 +90,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-
-                // Contenedor de los inputs
                 Container(
                   width: 350,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(5),
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: Colors.white,
                         blurRadius: 10,
@@ -106,8 +121,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         true,
                       ),
                       const SizedBox(height: 20),
-
-                      // Error message
                       if (_errorMessage != null)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 10),
@@ -116,33 +129,29 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: const TextStyle(color: Colors.red),
                           ),
                         ),
-
                       _isLoading
                           ? const CircularProgressIndicator()
                           : SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _login,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(
-                                  0xFF16548D,
-                                ), // Celeste
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: _login,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF16548D),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                              ),
-                              child: const Text(
-                                "Ingresar",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.white,
+                                child: const Text(
+                                  "Ingresar",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
                     ],
                   ),
                 ),
@@ -155,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // Widget para los input fields
+  // Widget reutilizable para los campos de texto
   Widget _buildInputField(
     IconData icon,
     String hint,
@@ -165,8 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return TextField(
       controller: controller,
       obscureText: isPassword ? _obscurePassword : false,
-      onSubmitted:
-          isPassword ? (_) => _login() : null, // Ejecutar login con Enter
+      onSubmitted: isPassword ? (_) => _login() : null,
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: Icon(icon, color: const Color(0xFF16548D)),
@@ -177,20 +185,19 @@ class _LoginScreenState extends State<LoginScreen> {
           borderSide: BorderSide.none,
         ),
         contentPadding: const EdgeInsets.symmetric(vertical: 14),
-        suffixIcon:
-            isPassword
-                ? IconButton(
-                  icon: Icon(
-                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                    color: const Color(0xFF16548D),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
-                )
-                : null,
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                  color: const Color(0xFF16548D),
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
+              )
+            : null,
       ),
     );
   }

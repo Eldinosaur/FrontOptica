@@ -28,6 +28,33 @@ class _EditPatientScreenState extends State<EditPatientScreen> {
   DateTime? _selectedDate;
   bool isLoading = true;
 
+  String? _validateOnlyLetters(String? value) {
+    if (value == null || value.isEmpty) return 'Campo requerido';
+    final regex = RegExp(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$');
+    return regex.hasMatch(value) ? null : 'Solo letras y espacios';
+  }
+
+  String? _validateOnlyNumbers(String? value, int length) {
+    if (value == null || value.isEmpty) return 'Campo requerido';
+    final regex = RegExp(r'^\d+$');
+    if (!regex.hasMatch(value)) return 'Solo números';
+    if (value.length != length) return 'Debe tener $length dígitos';
+    return null;
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) return 'Campo requerido';
+    final regex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return regex.hasMatch(value) ? null : 'Correo no válido';
+  }
+
+  String? _validateAddress(String? value) {
+  if (value == null || value.isEmpty) return 'Campo requerido';
+  final regex = RegExp(r'^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-]+$');
+  return regex.hasMatch(value) ? null : 'Caracteres inválidos en la dirección';
+}
+
+
   @override
   void initState() {
     super.initState();
@@ -63,89 +90,90 @@ class _EditPatientScreenState extends State<EditPatientScreen> {
   }
 
   Future<void> _submit() async {
-  if (!_formKey.currentState!.validate() || _selectedDate == null) return;
+    if (!_formKey.currentState!.validate() || _selectedDate == null) return;
 
-  final data = {
-    "Cedula": _cedulaController.text.trim(),
-    "Nombre": _nombreController.text.trim(),
-    "Apellido": _apellidoController.text.trim(),
-    "FNacimiento": DateFormat('yyyy-MM-dd').format(_selectedDate!),
-    "Ocupacion": _ocupacionController.text.trim(),
-    "Telefono": _telefonoController.text.trim(),
-    "Correo": _correoController.text.trim(),
-    "Direccion": _direccionController.text.trim(),
-    "Antecedentes": _antecedentesController.text.trim(),
-    "CondicionesMedicas": _condicionesController.text.trim(),
-  };
+    final data = {
+      "Cedula": _cedulaController.text.trim(),
+      "Nombre": _nombreController.text.trim(),
+      "Apellido": _apellidoController.text.trim(),
+      "FNacimiento": DateFormat('yyyy-MM-dd').format(_selectedDate!),
+      "Ocupacion": _ocupacionController.text.trim(),
+      "Telefono": _telefonoController.text.trim(),
+      "Correo": _correoController.text.trim(),
+      "Direccion": _direccionController.text.trim(),
+      "Antecedentes": _antecedentesController.text.trim(),
+      "CondicionesMedicas": _condicionesController.text.trim(),
+    };
 
-  setState(() => isLoading = true);
+    setState(() => isLoading = true);
 
-  try {
-    await PatientService.updatePatient(widget.pacienteId, data);
+    try {
+      await PatientService.updatePatient(widget.pacienteId, data);
 
-    if (context.mounted) {
-      final result = await showDialog<bool>(
-        context: context,
-        barrierDismissible: true, // permite cerrar tocando fuera
-        builder: (_) => AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Lottie.asset('assets/check.json', width: 100, height: 100),
-              const SizedBox(height: 10),
-              const Text('Paciente actualizado correctamente.'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true).pop(true);
-              },
-              child: const Text('Aceptar'),
-            ),
-          ],
-        ),
-      );
+      if (context.mounted) {
+        final result = await showDialog<bool>(
+          context: context,
+          barrierDismissible: true, // permite cerrar tocando fuera
+          builder:
+              (_) => AlertDialog(
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Lottie.asset('assets/check.json', width: 100, height: 100),
+                    const SizedBox(height: 10),
+                    const Text('Paciente actualizado correctamente.'),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context, rootNavigator: true).pop(true);
+                    },
+                    child: const Text('Aceptar'),
+                  ),
+                ],
+              ),
+        );
 
-      // Si el usuario cerró tocando fuera o aceptó
-      if (result != false) {
-        context.pushReplacement('/paciente/${widget.pacienteId}');
+        // Si el usuario cerró tocando fuera o aceptó
+        if (result != false) {
+          context.pushReplacement('/paciente/${widget.pacienteId}');
+        }
       }
-    }
-  } catch (e) {
-    if (context.mounted) {
-      final result = await showDialog<bool>(
-        context: context,
-        barrierDismissible: true,
-        builder: (_) => AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Lottie.asset('assets/fail.json', width: 100, height: 100),
-              const SizedBox(height: 10),
-              Text('Error al actualizar paciente: $e'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true).pop(true);
-              },
-              child: const Text('Aceptar'),
-            ),
-          ],
-        ),
-      );
+    } catch (e) {
+      if (context.mounted) {
+        final result = await showDialog<bool>(
+          context: context,
+          barrierDismissible: true,
+          builder:
+              (_) => AlertDialog(
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Lottie.asset('assets/fail.json', width: 100, height: 100),
+                    const SizedBox(height: 10),
+                    Text('Error al actualizar paciente: $e'),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context, rootNavigator: true).pop(true);
+                    },
+                    child: const Text('Aceptar'),
+                  ),
+                ],
+              ),
+        );
 
-      if (result != false) {
-        context.pushReplacement('/paciente/${widget.pacienteId}');
+        if (result != false) {
+          context.pushReplacement('/paciente/${widget.pacienteId}');
+        }
       }
+    } finally {
+      setState(() => isLoading = false);
     }
-  } finally {
-    setState(() => isLoading = false);
   }
-}
-
 
   Future<void> _selectDate(BuildContext context) async {
     final picked = await showDatePicker(
@@ -200,24 +228,72 @@ class _EditPatientScreenState extends State<EditPatientScreen> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          _buildTextField("Cédula", _cedulaController),
-                          _buildTextField("Nombre", _nombreController),
-                          _buildTextField("Apellido", _apellidoController),
+                          _buildTextField(
+                            "Cédula",
+                            _cedulaController,
+                            10,
+                            TextInputType.number,
+                            (val) => _validateOnlyNumbers(val, 10),
+                          ),
+                          _buildTextField(
+                            "Nombre",
+                            _nombreController,
+                            50,
+                            TextInputType.text,
+                            (val) => _validateOnlyLetters(val),
+                          ),
+                          _buildTextField(
+                            "Apellido",
+                            _apellidoController,
+                            50,
+                            TextInputType.text,
+                            (val) => _validateOnlyLetters(val),
+                          ),
                           _buildDateField(
                             "Fecha de Nacimiento",
                             _fnacimientoController,
                           ),
-                          _buildTextField("Ocupación", _ocupacionController),
-                          _buildTextField("Teléfono", _telefonoController),
-                          _buildTextField("Correo", _correoController),
-                          _buildTextField("Dirección", _direccionController),
+                          _buildTextField(
+                            "Ocupación",
+                            _ocupacionController,
+                            100,
+                            TextInputType.text,
+                            (val) => _validateOnlyLetters(val),
+                          ),
+                          _buildTextField(
+                            "Teléfono",
+                            _telefonoController,
+                            10,
+                            TextInputType.number,
+                            (val) => _validateOnlyNumbers(val, 10),
+                          ),
+                          _buildTextField(
+                            "Correo",
+                            _correoController,
+                            100,
+                            TextInputType.emailAddress,
+                            (val) => _validateEmail(val),
+                          ),
+                          _buildTextField(
+                            "Dirección",
+                            _direccionController,
+                            100,
+                            TextInputType.text,
+                            (val) => _validateAddress(val),
+                          ),
                           _buildTextField(
                             "Antecedentes",
                             _antecedentesController,
+                            100,
+                            TextInputType.text,
+                            (val) => _validateOnlyLetters(val),
                           ),
                           _buildTextField(
                             "Condiciones Médicas",
                             _condicionesController,
+                            100,
+                            TextInputType.text,
+                            (val) => _validateOnlyLetters(val),
                           ),
                           const SizedBox(height: 20),
                           PrimaryButton(
@@ -234,16 +310,25 @@ class _EditPatientScreenState extends State<EditPatientScreen> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller,
+    int? maxLength,
+    TextInputType? keyboardType,
+    String? Function(String?)? customValidator,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: TextFormField(
         controller: controller,
+        maxLength: maxLength,
+        keyboardType: keyboardType,
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
         ),
         validator:
+            customValidator ??
             (value) =>
                 value == null || value.isEmpty ? 'Campo requerido' : null,
       ),

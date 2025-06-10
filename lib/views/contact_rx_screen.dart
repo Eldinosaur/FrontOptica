@@ -59,8 +59,39 @@ class _ContactRxScreenState extends State<ContactRxScreen> {
     '20/100': 0.2,
     '20/200': 0.1,
   };
+  @override
+  void initState() {
+    super.initState();
+    _fechaController.text = DateFormat('yyyy-MM-dd').format(_today);
+  }
 
-  void _submitForm() async {
+  @override
+  void dispose() {
+    _fechaController.dispose();
+    _motivoController.dispose();
+    _observacionesController.dispose();
+
+    _odSphController.dispose();
+    _odCylController.dispose();
+    _odAxisController.dispose();
+    _odAddController.dispose();
+    _odBCController.dispose();
+    _odDiaController.dispose();
+
+    _oiSphController.dispose();
+    _oiCylController.dispose();
+    _oiAxisController.dispose();
+    _oiAddController.dispose();
+    _oiBCController.dispose();
+    _oiDiaController.dispose();
+
+    _marcaLenteController.dispose();
+    _tiempoUsoController.dispose();
+
+    super.dispose();
+  }
+
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final authService = Provider.of<AuthService>(context, listen: false);
       final userId = authService.userId;
@@ -76,14 +107,14 @@ class _ContactRxScreenState extends State<ContactRxScreen> {
         "consulta": {
           "IDpaciente": widget.pacienteId,
           "IDusuario": userId,
-          "FConsulta": DateFormat('yyyy-MM-dd').format(_today),
+          "FConsulta": _fechaController.text,
           "Observaciones": _observacionesController.text.trim(),
           "Motivo": _motivoController.text.trim(),
         },
         "receta": {
-          "TipoLente": 2,
-          "Fecha": DateFormat('yyyy-MM-dd').format(_today),
-        },
+          "TipoLente": 2, 
+          "Fecha": _fechaController.text
+          },
         "receta_armazones": null,
         "receta_contacto": {
           "OD_SPH": double.tryParse(_odSphController.text) ?? 0,
@@ -104,7 +135,7 @@ class _ContactRxScreenState extends State<ContactRxScreen> {
         "evolucion": {
           "OD": snellenToDecimal[_selectedODVision] ?? 0,
           "OI": snellenToDecimal[_selectedOIVision] ?? 0,
-          "Fecha": DateFormat('yyyy-MM-dd').format(_today),
+          "Fecha": _fechaController.text,
         },
       };
 
@@ -177,38 +208,6 @@ class _ContactRxScreenState extends State<ContactRxScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _fechaController.text = DateFormat('yyyy-MM-dd').format(_today);
-  }
-
-  @override
-  void dispose() {
-    _fechaController.dispose();
-    _motivoController.dispose();
-    _observacionesController.dispose();
-
-    _odSphController.dispose();
-    _odCylController.dispose();
-    _odAxisController.dispose();
-    _odAddController.dispose();
-    _odBCController.dispose();
-    _odDiaController.dispose();
-
-    _oiSphController.dispose();
-    _oiCylController.dispose();
-    _oiAxisController.dispose();
-    _oiAddController.dispose();
-    _oiBCController.dispose();
-    _oiDiaController.dispose();
-
-    _marcaLenteController.dispose();
-    _tiempoUsoController.dispose();
-
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Registrar Receta de Contacto')),
@@ -225,35 +224,29 @@ class _ContactRxScreenState extends State<ContactRxScreen> {
                   _buildDatePickerField("Fecha de Consulta", _fechaController),
                   _buildTextField("Motivo de la consulta", _motivoController),
                   _buildTextField("Observaciones", _observacionesController),
-                  const Divider(height: 30),
-                  const Text(
+                  const SizedBox(height: 20,),
+                  _buildEyeCard(
                     "Ojo Derecho",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  _buildTextField("SPH", _odSphController, isNumber: true),
-                  _buildTextField("CYL", _odCylController, isNumber: true),
-                  _buildTextField("AXIS", _odAxisController, isNumber: true),
-                  _buildTextField("ADD", _odAddController, isNumber: true),
-                  _buildTextField("BC", _odBCController, isNumber: true),
-                  _buildTextField("DIA", _odDiaController, isNumber: true),
-                  _buildDropdown("OD", _selectedODVision, (val) {
-                    setState(() => _selectedODVision = val);
-                  }),
-                  const Divider(height: 30),
-                  const Text(
+                    _odSphController,
+                    _odCylController,
+                    _odAxisController,
+                    _odAddController,
+                    _odBCController,
+                    _odDiaController,
+                    _selectedODVision,
+                    (val) => setState(() => _selectedODVision = val),
+                     ),
+                  _buildEyeCard(
                     "Ojo Izquierdo",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    _oiSphController,
+                    _oiCylController,
+                    _oiAxisController,
+                    _oiAddController,
+                    _oiBCController,
+                    _oiDiaController,
+                    _selectedOIVision,
+                    (val) => setState(() => _selectedOIVision = val),
                   ),
-                  _buildTextField("SPH", _oiSphController, isNumber: true),
-                  _buildTextField("CYL", _oiCylController, isNumber: true),
-                  _buildTextField("AXIS", _oiAxisController, isNumber: true),
-                  _buildTextField("ADD", _oiAddController, isNumber: true),
-                  _buildTextField("BC", _oiBCController, isNumber: true),
-                  _buildTextField("DIA", _oiDiaController, isNumber: true),
-                  _buildDropdown("OI", _selectedOIVision, (val) {
-                    setState(() => _selectedOIVision = val);
-                  }),
-
                   const Divider(height: 30),
                   _buildTextField("Marca de Lente", _marcaLenteController),
                   _buildTextField("Tiempo de Uso", _tiempoUsoController),
@@ -278,6 +271,7 @@ class _ContactRxScreenState extends State<ContactRxScreen> {
     String label,
     TextEditingController controller, {
     bool isNumber = false,
+    String? fieldType
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -317,6 +311,47 @@ class _ContactRxScreenState extends State<ContactRxScreen> {
             }).toList(),
         onChanged: onChanged,
         validator: (value) => value == null ? 'Selecciona una opción' : null,
+      ),
+    );
+  }
+
+  Widget _buildEyeCard(
+    String title,
+    TextEditingController sph,
+    TextEditingController cyl,
+    TextEditingController axis,
+    TextEditingController add,
+    TextEditingController bc,
+    TextEditingController dia,
+    String? vision,
+    void Function(String?) onVisionChanged,
+  ) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            _buildTextField("SPH", sph, isNumber: true, fieldType: 'sph'),
+            _buildTextField("CYL", cyl, isNumber: true, fieldType: 'cyl'),
+            _buildTextField("AXIS", axis, isNumber: true, fieldType: 'axis'),
+            _buildTextField("ADD", add, isNumber: true, fieldType: 'add'),
+            _buildTextField("BC", bc, isNumber: true, fieldType: 'bc'),
+            _buildTextField("DIA", dia, isNumber: true, fieldType: 'dia'),
+            _buildDropdown(
+              title.contains("Derecho") ? "OD" : "OI",
+              vision,
+              onVisionChanged,
+            ),
+          ],
+        ),
       ),
     );
   }

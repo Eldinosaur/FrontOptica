@@ -100,7 +100,8 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                         final consultasMap =
                             snapshot.data!
                                 .map((consulta) => consulta.toJson())
-                                .toList();
+                                .toList()
+                                ..sort((a, b) => DateTime.parse(b['FConsulta']).compareTo(DateTime.parse(a['FConsulta'])));
                         return buildExpansionArmazon(consultasMap);
                       }
                     } else {
@@ -128,7 +129,8 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                         final consultasMap =
                             snapshot.data!
                                 .map((consulta) => consulta.toJson())
-                                .toList();
+                                .toList()
+                                ..sort((a, b) => DateTime.parse(b['FConsulta']).compareTo(DateTime.parse(a['FConsulta'])));
                         return buildExpansionContacto(consultasMap);
                       }
                     } else {
