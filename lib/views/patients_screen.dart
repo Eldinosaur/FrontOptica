@@ -130,17 +130,20 @@ class _PatientsScreenState extends State<PatientsScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Pacientes')),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1000),
+  @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(title: const Text('Pacientes')),
+    body: LayoutBuilder(
+      builder: (context, constraints) {
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1000),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 20),
                   const Text(
                     "Búsqueda de Pacientes",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -148,17 +151,9 @@ class _PatientsScreenState extends State<PatientsScreen> {
                   const SizedBox(height: 20),
 
                   // Filtros
-                  _buildSearchField(
-                    "Buscar por Cédula",
-                    _cedulaController,
-                    _searchByCedula,
-                  ),
+                  _buildSearchField("Buscar por Cédula", _cedulaController, _searchByCedula),
                   const SizedBox(height: 10),
-                  _buildSearchField(
-                    "Buscar por Nombre",
-                    _nombreController,
-                    _searchByNombre,
-                  ),
+                  _buildSearchField("Buscar por Nombre", _nombreController, _searchByNombre),
                   const SizedBox(height: 20),
 
                   // Botón
@@ -169,84 +164,62 @@ class _PatientsScreenState extends State<PatientsScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Tabla (con altura dinámica calculada)
-                  Expanded(
-                    child: Column(
-                      children: [
-                        // Encabezado
-                        Container(
-                          color: const Color(0xFF16548D),
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 10,
-                            horizontal: 8,
-                          ),
-                          child: Row(
-                            children: const [
-                              _TableHeader("N°"),
-                              _TableHeader("Cédula"),
-                              _TableHeader("Nombres"),
-                              _TableHeader("Apellidos"),
-                              _TableHeader("Última Consulta"),
-                            ],
-                          ),
-                        ),
-
-                        // Lista scrolleable
-                        Expanded(
-                          child:
-                              isLoading
-                                  ? const Center(
-                                    child: CircularProgressIndicator(),
-                                  )
-                                  : ListView.builder(
-                                    itemCount: patients.length,
-                                    itemBuilder: (context, index) {
-                                      final paciente = patients[index];
-                                      return InkWell(
-                                        onTap:
-                                            () => context.go(
-                                              '/paciente/${paciente.id}',
-                                            ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 12,
-                                            horizontal: 8,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              _TableCell(
-                                                paciente.id.toString(),
-                                              ),
-                                              _TableCell(paciente.cedula),
-                                              _TableCell(paciente.nombres),
-                                              _TableCell(paciente.apellidos),
-                                              _TableCell(
-                                                paciente.ultimaConsulta != null
-                                                    ? DateFormat(
-                                                      "dd-MM-yyyy",
-                                                    ).format(
-                                                      paciente.ultimaConsulta!,
-                                                    )
-                                                    : "Sin datos",
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                        ),
+                  // Tabla
+                  Container(
+                    color: const Color(0xFF16548D),
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                    child: Row(
+                      children: const [
+                        _TableHeader("N°"),
+                        _TableHeader("Cédula"),
+                        _TableHeader("Nombres"),
+                        _TableHeader("Apellidos"),
+                        _TableHeader("Última Consulta"),
                       ],
                     ),
+                  ),
+
+                  // Lista scrolleable (en caja de altura fija)
+                  SizedBox(
+                    height: 400,
+                    child: isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : ListView.builder(
+                            itemCount: patients.length,
+                            itemBuilder: (context, index) {
+                              final paciente = patients[index];
+                              return InkWell(
+                                onTap: () => context.go('/paciente/${paciente.id}'),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                                  child: Row(
+                                    children: [
+                                      _TableCell(paciente.id.toString()),
+                                      _TableCell(paciente.cedula),
+                                      _TableCell(paciente.nombres),
+                                      _TableCell(paciente.apellidos),
+                                      _TableCell(
+                                        paciente.ultimaConsulta != null
+                                            ? DateFormat("dd-MM-yyyy").format(paciente.ultimaConsulta!)
+                                            : "Sin datos",
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                   ),
                 ],
               ),
             ),
-          );
-        },
-      ),
-    );
-  }
+          ),
+        );
+      },
+    ),
+  );
+}
+
 
   // Widget personalizado para los campos de búsqueda
   Widget _buildSearchField(

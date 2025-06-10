@@ -13,14 +13,16 @@ class SettingsScreen extends StatelessWidget {
     final usuario = authService.usuarioActual;
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Configuración'),
+      ),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const CircleAvatar(
                   radius: 50,
@@ -34,10 +36,11 @@ class SettingsScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32),
 
-                // Opciones de configuración
+                // Opción: Cambiar contraseña
                 _buildOption(
                   context: context,
                   icon: Icons.lock,
@@ -45,6 +48,8 @@ class SettingsScreen extends StatelessWidget {
                   onTap: () => context.go('/cambioclave'),
                 ),
                 const SizedBox(height: 16),
+
+                // Opción: Cerrar sesión
                 _buildOption(
                   context: context,
                   icon: Icons.logout,
@@ -52,10 +57,18 @@ class SettingsScreen extends StatelessWidget {
                   onTap: () async {
                     final confirm = await showLogoutConfirmationDialog(context);
                     if (confirm) {
-                      await Provider.of<AuthService>(context, listen: false).logout();
+                      await authService.logout();
                       if (context.mounted) context.go('/login');
                     }
                   },
+                ),
+
+                const SizedBox(height: 24),
+                const Divider(thickness: 1.5),
+                const SizedBox(height: 16),
+                const Text(
+                  'Versión 1.0.0',
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
               ],
             ),
@@ -73,26 +86,35 @@ class SettingsScreen extends StatelessWidget {
   }) {
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
           boxShadow: const [
-            BoxShadow(color: Colors.white, blurRadius: 5, spreadRadius: 2),
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 4,
+              spreadRadius: 2,
+              offset: Offset(0, 2),
+            ),
           ],
         ),
         child: Row(
           children: [
             Icon(icon, color: const Color(0xFF16548D)),
             const SizedBox(width: 16),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.black,
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black87,
+                ),
               ),
             ),
+            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
           ],
         ),
       ),

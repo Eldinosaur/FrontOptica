@@ -31,12 +31,35 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
 
   final ScrollController _horizontalScrollController = ScrollController();
 
+  List<ConsultaCompleta> consultasArmazon = [];
+  List<ConsultaCompleta> consultasContacto = [];
+  bool showEvolutionButton = false;
+
   @override
   void initState() {
     super.initState();
     _futurePatient = PatientService.getPatientById(widget.pacienteId);
     _futureArmazon = ConsultaService.getConsultasArmazon(widget.pacienteId);
     _futureContacto = ConsultaService.getConsultasContacto(widget.pacienteId);
+
+    _loadConsultas();
+  }
+
+  Future<void> _loadConsultas() async {
+    try {
+      final armazon = await _futureArmazon;
+      final contacto = await _futureContacto;
+      setState(() {
+        consultasArmazon = armazon;
+        consultasContacto = contacto;
+        final totalConsultas = armazon.length + contacto.length;
+        showEvolutionButton = totalConsultas >= 3;
+      });
+    } catch (e) {
+      setState(() {
+        showEvolutionButton = false;
+      });
+    }
   }
 
   @override
@@ -91,19 +114,17 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                       return const Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
                       return Center(child: Text("Error: ${snapshot.error}"));
-                    } else if (snapshot.hasData) {
-                      if (snapshot.data!.isEmpty) {
-                        return const Center(
-                          child: Text("No se encontraron consultas de armazón"),
-                        );
-                      } else {
-                        final consultasMap =
-                            snapshot.data!
-                                .map((consulta) => consulta.toJson())
-                                .toList()
-                                ..sort((a, b) => DateTime.parse(b['FConsulta']).compareTo(DateTime.parse(a['FConsulta'])));
-                        return buildExpansionArmazon(consultasMap);
-                      }
+                    } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                      final consultasMap =
+                          snapshot.data!
+                              .map((consulta) => consulta.toJson())
+                              .toList()
+                            ..sort(
+                              (a, b) => DateTime.parse(
+                                b['FConsulta'],
+                              ).compareTo(DateTime.parse(a['FConsulta'])),
+                            );
+                      return buildExpansionArmazon(consultasMap);
                     } else {
                       return const Center(
                         child: Text("No se encontraron consultas de armazón"),
@@ -118,21 +139,17 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
                       return const Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
                       return Center(child: Text("Error: ${snapshot.error}"));
-                    } else if (snapshot.hasData) {
-                      if (snapshot.data!.isEmpty) {
-                        return const Center(
-                          child: Text(
-                            "No se encontraron consultas de contacto",
-                          ),
-                        );
-                      } else {
-                        final consultasMap =
-                            snapshot.data!
-                                .map((consulta) => consulta.toJson())
-                                .toList()
-                                ..sort((a, b) => DateTime.parse(b['FConsulta']).compareTo(DateTime.parse(a['FConsulta'])));
-                        return buildExpansionContacto(consultasMap);
-                      }
+                    } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                      final consultasMap =
+                          snapshot.data!
+                              .map((consulta) => consulta.toJson())
+                              .toList()
+                            ..sort(
+                              (a, b) => DateTime.parse(
+                                b['FConsulta'],
+                              ).compareTo(DateTime.parse(a['FConsulta'])),
+                            );
+                      return buildExpansionContacto(consultasMap);
                     } else {
                       return const Center(
                         child: Text("No se encontraron consultas de contacto"),
@@ -190,6 +207,27 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
     );
   }
 
+  Widget buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              "$label:",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(value.isNotEmpty ? value : "No especificado"),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget buildActionButtons() {
     return Wrap(
       spacing: 12,
@@ -198,30 +236,32 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
         PrimaryButton(
           label: "Editar Datos",
           icon: Icons.edit,
-          onPressed: () {
-            context.push('/editar_paciente/${widget.pacienteId}');
-          },
+          onPressed:
+              () => context.push('/editar_paciente/${widget.pacienteId}'),
         ),
         PrimaryButton(
           label: "Consulta Lentes de Armazón",
           icon: Icons.remove_red_eye,
-          onPressed: () {
-            context.push('/registrar_consulta/armazon/${widget.pacienteId}');
-          },
+          onPressed:
+              () => context.push(
+                '/registrar_consulta/armazon/${widget.pacienteId}',
+              ),
         ),
         PrimaryButton(
           label: "Consulta Lentes de Contacto",
           icon: Icons.visibility,
-          onPressed: () {
-            context.push('/registrar_consulta/contacto/${widget.pacienteId}');
-          },
+          onPressed:
+              () => context.push(
+                '/registrar_consulta/contacto/${widget.pacienteId}',
+              ),
         ),
         PrimaryButton(
           label: "Reporte de Evolucion Visual",
           icon: Icons.auto_graph,
-          onPressed: () {
-            context.push('/evolucion/${widget.pacienteId}');
-          },
+          onPressed:
+              showEvolutionButton
+                  ? () => context.push("/evolucion/${widget.pacienteId}")
+                  : null,
         ),
       ],
     );
@@ -238,64 +278,52 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
             title: const Text("Consultas de Lentes de Armazón"),
             leading: const Icon(Icons.remove_red_eye),
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Scrollbar(
-                  thumbVisibility: true, // visible scrollbar en web
-                  controller: _horizontalScrollController,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    controller: _horizontalScrollController,
-                    child: IntrinsicWidth(
-                      child: DataTable(
-                        showCheckboxColumn: false,
-                        columns: const [
-                          DataColumn(label: Text('Fecha')),
-                          DataColumn(label: Text('OD (SPH/CYL/EJE/ADD)')),
-                          DataColumn(label: Text('OI (SPH/CYL/EJE/ADD)')),
-                          DataColumn(label: Text('Observaciones')),
-                        ],
-                        rows:
-                            consultas.map((consulta) {
-                              final receta =
-                                  consulta['receta']?['receta_armazones'];
-                              return DataRow(
-                                onSelectChanged: (_) {
-                                  final idConsulta = consulta['IDconsulta'];
-                                  context.push(
-                                    '/consulta_detalle/${widget.pacienteId}/$idConsulta',
-                                  );
-                                },
-                                cells: [
-                                  DataCell(
-                                    Text(formatFecha(consulta['FConsulta'])),
-                                  ),
-                                  DataCell(
-                                    Text(
-                                      receta != null
-                                          ? '${receta['OD_SPH']} / ${receta['OD_CYL']} / ${receta['OD_AXIS']} / ${receta['OD_ADD']}'
-                                          : 'No disponible',
-                                    ),
-                                  ),
-                                  DataCell(
-                                    Text(
-                                      receta != null
-                                          ? '${receta['OI_SPH']} / ${receta['OI_CYL']} / ${receta['OI_AXIS']} / ${receta['OI_ADD']}'
-                                          : 'No disponible',
-                                    ),
-                                  ),
-                                  DataCell(
-                                    Text(
-                                      consulta['Observaciones'] ??
-                                          'Sin observaciones',
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }).toList(),
-                      ),
-                    ),
-                  ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                controller: _horizontalScrollController,
+                child: DataTable(
+                  showCheckboxColumn: false,
+                  columns: const [
+                    DataColumn(label: Text('Fecha')),
+                    DataColumn(label: Text('OD (SPH/CYL/EJE/ADD)')),
+                    DataColumn(label: Text('OI (SPH/CYL/EJE/ADD)')),
+                    DataColumn(label: Text('Observaciones')),
+                  ],
+                  rows:
+                      consultas.map((consulta) {
+                        final receta = consulta['receta']?['receta_armazones'];
+                        return DataRow(
+                          onSelectChanged: (_) {
+                            final idConsulta = consulta['IDconsulta'];
+                            context.push(
+                              '/consulta_detalle/${widget.pacienteId}/$idConsulta',
+                            );
+                          },
+                          cells: [
+                            DataCell(Text(formatFecha(consulta['FConsulta']))),
+                            DataCell(
+                              Text(
+                                receta != null
+                                    ? '${receta['OD_SPH']} / ${receta['OD_CYL']} / ${receta['OD_AXIS']} / ${receta['OD_ADD']}'
+                                    : 'No disponible',
+                              ),
+                            ),
+                            DataCell(
+                              Text(
+                                receta != null
+                                    ? '${receta['OI_SPH']} / ${receta['OI_CYL']} / ${receta['OI_AXIS']} / ${receta['OI_ADD']}'
+                                    : 'No disponible',
+                              ),
+                            ),
+                            DataCell(
+                              Text(
+                                consulta['Observaciones'] ??
+                                    'Sin observaciones',
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
                 ),
               ),
             ],
@@ -316,86 +344,56 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
             title: const Text("Consultas de Lentes de Contacto"),
             leading: const Icon(Icons.visibility),
             children: [
-              Scrollbar(
-                thumbVisibility: true,
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
                 controller: _horizontalScrollController,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  controller: _horizontalScrollController,
-                  child: DataTable(
-                    showCheckboxColumn: false,
-                    columns: const [
-                      DataColumn(label: Text('Fecha')),
-                      DataColumn(label: Text('OD (SPH/CYL/EJE/ADD/BC/DIA)')),
-                      DataColumn(label: Text('OI (SPH/CYL/EJE/ADD/BC/DIA)')),
-                      DataColumn(label: Text('Marca')),
-                      DataColumn(label: Text('Tiempo de Uso')),
-                    ],
-                    rows:
-                        consultas.map((consulta) {
-                          final receta = consulta['receta']?['receta_contacto'];
-                          return DataRow(
-                            onSelectChanged: (_) {
-                              final idConsulta = consulta['IDconsulta'];
-                              context.push(
-                                '/consulta_detalle/${widget.pacienteId}/$idConsulta',
-                              );
-                            },
-                            cells: [
-                              DataCell(
-                                Text(formatFecha(consulta['FConsulta'])),
+                child: DataTable(
+                  showCheckboxColumn: false,
+                  columns: const [
+                    DataColumn(label: Text('Fecha')),
+                    DataColumn(label: Text('OD (SPH/CYL/EJE/ADD/BC/DIA)')),
+                    DataColumn(label: Text('OI (SPH/CYL/EJE/ADD/BC/DIA)')),
+                    DataColumn(label: Text('Marca')),
+                    DataColumn(label: Text('Tiempo de Uso')),
+                  ],
+                  rows:
+                      consultas.map((consulta) {
+                        final receta = consulta['receta']?['receta_contacto'];
+                        return DataRow(
+                          onSelectChanged: (_) {
+                            final idConsulta = consulta['IDconsulta'];
+                            context.push(
+                              '/consulta_detalle/${widget.pacienteId}/$idConsulta',
+                            );
+                          },
+                          cells: [
+                            DataCell(Text(formatFecha(consulta['FConsulta']))),
+                            DataCell(
+                              Text(
+                                receta != null
+                                    ? '${receta['OD_SPH']} / ${receta['OD_CYL']} / ${receta['OD_AXIS']} / ${receta['OD_ADD']} / ${receta['OD_BC']} / ${receta['OD_DIA']}'
+                                    : 'No disponible',
                               ),
-                              DataCell(
-                                Text(
-                                  receta != null
-                                      ? '${receta['OD_SPH']} / ${receta['OD_CYL']} / ${receta['OD_AXIS']} / ${receta['OD_ADD']} / ${receta['OD_BC']} / ${receta['OD_DIA']}'
-                                      : 'No disponible',
-                                ),
+                            ),
+                            DataCell(
+                              Text(
+                                receta != null
+                                    ? '${receta['OI_SPH']} / ${receta['OI_CYL']} / ${receta['OI_AXIS']} / ${receta['OI_ADD']} / ${receta['OI_BC']} / ${receta['OI_DIA']}'
+                                    : 'No disponible',
                               ),
-                              DataCell(
-                                Text(
-                                  receta != null
-                                      ? '${receta['OI_SPH']} / ${receta['OI_CYL']} / ${receta['OI_AXIS']} / ${receta['OI_ADD']} / ${receta['OI_BC']} / ${receta['OI_DIA']}'
-                                      : 'No disponible',
-                                ),
-                              ),
-                              DataCell(
-                                Text(
-                                  receta != null
-                                      ? receta['MarcaLente'] ?? 'No disponible'
-                                      : 'No disponible',
-                                ),
-                              ),
-                              DataCell(
-                                Text(receta?['TiempoUso'] ?? 'No definido'),
-                              ),
-                            ],
-                          );
-                        }).toList(),
-                  ),
+                            ),
+                            DataCell(Text(receta?['Marca'] ?? 'No disponible')),
+                            DataCell(
+                              Text(receta?['TiempoUso'] ?? 'No disponible'),
+                            ),
+                          ],
+                        );
+                      }).toList(),
                 ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Text(
-              "$label:",
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          Expanded(child: Text(value)),
-        ],
       ),
     );
   }
