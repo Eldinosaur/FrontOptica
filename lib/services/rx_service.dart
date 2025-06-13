@@ -1,11 +1,10 @@
 import 'package:dio/dio.dart';
 import '../models/rx_model.dart';
 import '../utils/secure_storage_service.dart';
+import '../utils/navigation.dart';
 
 class ConsultaService {
-  static final Dio _dio = Dio(
-    BaseOptions(baseUrl: 'http://192.168.100.2:8000/api'), 
-  );
+  static final Dio _dio = Dio(BaseOptions(baseUrl:AppConfig.baseUrl));
 
   static Future<String?> _getToken() async {
     return await SecureStorageService.getToken();
@@ -115,7 +114,7 @@ class ConsultaService {
       final token = await _getToken();
 
       final response = await _dio.post(
-        '/consulta_completa/', 
+        '/consulta_completa/',
         data: payload,
         options: Options(
           headers: {

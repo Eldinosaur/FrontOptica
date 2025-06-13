@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../utils/secure_storage_service.dart';
 import '../models/usuario_model.dart';
+import '../utils/navigation.dart';
 
 class AuthService extends ChangeNotifier {
-  final Dio _dio = Dio(BaseOptions(baseUrl: 'http://192.168.100.2:8000/api')); // Ruta del servicio local
-  // https://eyemedix-api.onrender.com/api // Ruta del servicio en línea, si se necesita cambiar
+  final Dio _dio = Dio(BaseOptions(baseUrl: AppConfig.baseUrl)); 
 
   bool _isAuthenticated = false;
   Usuario? _usuarioActual;

@@ -1,10 +1,11 @@
 import 'package:dio/dio.dart';
 import '../models/patient_model.dart';
 import '../utils/secure_storage_service.dart';
+import '../utils/navigation.dart';
 
 class PatientService {
   static final Dio _dio = Dio(
-    BaseOptions(baseUrl: 'http://192.168.100.2:8000/api'),
+    BaseOptions(baseUrl: AppConfig.baseUrl),
   );
 
   // Método para obtener el token desde almacenamiento seguro
